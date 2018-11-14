@@ -12,7 +12,7 @@ def test_creation():
 
 def test_bit_set():
     reg = Adf3114Register()
-    reg.set_bits(list(range(24)))
+    reg.set_bits(tuple(range(24)))
     expect(reg.bin).to_equal('111111111111111111111111')
 
 
@@ -32,8 +32,15 @@ def test_bit_toggle():
 
 def test_bit_pattern():
     reg = Adf3114Register()
+    bits = (DB21, DB3)
+    mode = {
+        0: [0, 0],
+        1: [0, 0],
+        2: [0, 1],
+        3: [1, 1]
+    }
 
-    reg.set_bit_pattern([[DB0, 1], [DB4, 1], [DB8, 1], [DB12, 1], [DB12, 0]])
-    expect(reg.bin).to_equal('000000000000000100010001')
+    reg.set_bit_pattern(3, bits, mode)
+    expect(reg.bin).to_equal('001000000000000000001000')
 
 
