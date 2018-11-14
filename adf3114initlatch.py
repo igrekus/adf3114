@@ -2,13 +2,13 @@ from adf3114register import *
 
 # 0000_0000_0000_00xx
 # в режиме initialization latch должны = 1, 1
-CONTROL_BIT_1 = DB0
-CONTROL_BIT_2 = DB1
+CONTROL_BITS = (DB1, DB0)
 
 # 0000_0000_0000_0x00   --   counter operation
 # 0=normal
 # 1=R,A,B counters held in reset
-COUNTER_RESET = DB2
+F1 = DB2
+COUNTER_RESET_BITS = (F1,)
 COUNTER_RESET_MODE = {
     0: [0],
     1: [1]
@@ -20,8 +20,9 @@ COUNTER_RESET_MODE = {
 #    1      x     0   1=normal operation
 #    1      0     1   2=async power-down
 #    1      1     1   3=sync power-down
-POWER_DOWN_1 = PD1 = DB3
-POWER_DOWN_2 = PD2 = DB21
+PD1 = DB3
+PD2 = DB21
+POWER_DOWN_BITS = (PD2, PD1)
 POWER_DOWN_MODE = {
     0: [0, 0],
     1: [0, 0],
@@ -39,9 +40,10 @@ POWER_DOWN_MODE = {
 #  1    0    1   5=analog lock detect (n-channel open-drain)
 #  1    1    0   6=serial data output
 #  1    1    1   7=DGND
-MUXOUT_1 = M1 = DB4
-MUXOUT_2 = M2 = DB5
-MUXOUT_3 = M3 = DB6
+M1 = DB4
+M2 = DB5
+M3 = DB6
+MUXOUT_BITS = (M3, M2, M1)
 MUXOUT_CONTROL = {
     0: [0, 0, 0],
     1: [0, 0, 1],
@@ -59,46 +61,35 @@ class Adf3114InitLatch(Adf3114Register):
     def __init__(self, bits=0):
         super().__init__(bits=bits)
 
-        self.set_bits([CONTROL_BIT_1, CONTROL_BIT_2])
+        self.set_bits(CONTROL_BITS)
 
     @property
     def counter_reset(self):
-        return self.nth_bit(COUNTER_RESET)
+        return self._find_seq(COUNTER_RESET_BITS, COUNTER_RESET_MODE)
 
     @counter_reset.setter
     def counter_reset(self, state):
-        if state not in [0, 1]:
+        if state not in COUNTER_RESET_MODE:
             raise ValueError('Incorrect counter state.')
-        if state:
-            self.set_nth_bit(COUNTER_RESET)
-        else:
-            self.unset_nth_bit(COUNTER_RESET)
+        self.set_bit_pattern(state, COUNTER_RESET_BITS, COUNTER_RESET_MODE)
 
     @property
     def power_down_mode(self):
-        bits = [self.nth_bit(POWER_DOWN_2), self.nth_bit(POWER_DOWN_1)]
-        for k, v in POWER_DOWN_MODE.items():
-            if v == bits:
-                return k
-        else:
-            raise ValueError('Wrong power-down bit pattern.')
+        return self._find_seq(POWER_DOWN_BITS, POWER_DOWN_MODE)
 
     @power_down_mode.setter
     def power_down_mode(self, mode: int):
-        bits = POWER_DOWN_MODE[mode]
-        self.set_bit_pattern([[n, bit] for n, bit in zip([PD2, PD1], bits)])
+        if mode not in POWER_DOWN_MODE:
+            raise ValueError('Incorrect power down mode.')
+        self.set_bit_pattern(mode, POWER_DOWN_BITS, POWER_DOWN_MODE)
 
     @property
     def muxout_control(self):
-        bits = [self.nth_bit(MUXOUT_3), self.nth_bit(MUXOUT_2), self.nth_bit(MUXOUT_1)]
-        for k, v in MUXOUT_CONTROL.items():
-            if v == bits:
-                return k
-        else:
-            raise ValueError('Wrong power-down bit pattern.')
+        return self._find_seq(MUXOUT_BITS, MUXOUT_CONTROL)
 
     @muxout_control.setter
-    def muxout_control(self, mode: int):
-        bits = MUXOUT_CONTROL[mode]
-        self.set_bit_pattern([[n, bit] for n, bit in zip([M3, M2, M1], bits)])
+    def muxout_control(self, code: int):
+        if code not in MUXOUT_CONTROL:
+            raise ValueError('Incorrect muxout control code.')
+        self.set_bit_pattern(code, MUXOUT_BITS, MUXOUT_CONTROL)
 
