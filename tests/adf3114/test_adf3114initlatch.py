@@ -65,3 +65,13 @@ def test_set_muxout_control():
     expect(reg.muxout_control).to_equal(7)
 
 
+def test_pd_polarity():
+    reg = Adf3114InitLatch()
+    expect(reg.bin).to_equal('000000000000000000000011')
+
+    reg.phase_detector_polarity = 0
+    expect(reg.bin).to_equal('000000000000000000000011')
+
+    reg.phase_detector_polarity = 1
+    expect(reg.bin).to_equal('000000000000000010000011')
+
