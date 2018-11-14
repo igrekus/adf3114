@@ -1,12 +1,13 @@
 from adf3114register import *
 
-# 0000_0000_0000_00xx
+# 0000_0000_0000_0000_0000_00xx
 # в режиме initialization latch должны = 1, 1
 CONTROL_BITS = (DB1, DB0)
 
 # 0000_0000_0000_0x00   --   counter operation
-# 0=normal
-# 1=R,A,B counters held in reset
+# F1
+#  0   0=normal
+#  1   1=R,A,B counters held in reset
 F1 = DB2
 COUNTER_RESET_BITS = (F1,)
 COUNTER_RESET_MODE = {
@@ -14,7 +15,7 @@ COUNTER_RESET_MODE = {
     1: [1]
 }
 
-# 00x0_0000_0000_x000   --   power-down mode
+# 00x0_0000_0000_0000_0000_x000   --   power-down mode
 # CE pin | PD2 | PD1
 #    0      x     x   0=async power-down
 #    1      x     0   1=normal operation
@@ -30,7 +31,7 @@ POWER_DOWN_MODE = {
     3: [1, 1]
 }
 
-# 0000_0000_0xxx_0000   --   muxout control
+# 0000_0000_0000_0000_0xxx_0000   --   muxout control
 # M3 | M2 | M1
 #  0    0    0   0=three-state output
 #  0    0    1   1=digital lock detect (active high)
