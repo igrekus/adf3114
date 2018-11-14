@@ -56,6 +56,18 @@ MUXOUT_CONTROL = {
     7: [1, 1, 1],
 }
 
+# 0000_0000_0000_0000_x000_0000   --   phase detector polarity
+# F2
+#  0   0=negative
+#  1   1=positive
+#
+F2 = DB7
+PD_POLARITY_BITS = (F2, )
+PD_POLARITY = {
+    0: [0],
+    1: [1]
+}
+
 
 class Adf3114InitLatch(Adf3114Register):
 
@@ -93,4 +105,15 @@ class Adf3114InitLatch(Adf3114Register):
         if code not in MUXOUT_CONTROL:
             raise ValueError('Incorrect muxout control code.')
         self.set_bit_pattern(code, MUXOUT_BITS, MUXOUT_CONTROL)
+
+    @property
+    def phase_detector_polarity(self):
+        return self._find_seq(PD_POLARITY_BITS, PD_POLARITY)
+
+    @phase_detector_polarity.setter
+    def phase_detector_polarity(self, code):
+        if code not in PD_POLARITY:
+            raise ValueError('Incorrect phase detector polarity code.')
+        self.set_bit_pattern(code, PD_POLARITY_BITS, PD_POLARITY)
+
 
