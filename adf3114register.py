@@ -39,30 +39,25 @@ class Adf3114Register:
     def nth_bit(self, n):
         return int(bool(self._bits & (1 << n)))
 
+    def nth_bits(self, numbers: list):
+        return [self.nth_bit(n) for n in numbers]
+
     def set_nth_bit(self, n):
         self._bits |= (1 << n)
 
-    def set_bits(self, numbers: list):
+    def set_bits(self, numbers: tuple):
         for n in numbers:
             self.set_nth_bit(n)
 
     def set_nth_bit_to(self, state: list):
-        """
-        :param state: [n, val]
-        :return:
-        """
         n, val = state
         if val:
             self.set_nth_bit(n)
         else:
             self.unset_nth_bit(n)
 
-    def set_bit_pattern(self, pattern: list):
-        """
-        :param pattern: [ [n, state] ... ]
-        :return:
-        """
-        for state in pattern:
+    def set_bit_pattern(self, key, bits: tuple, mapping: dict):
+        for state in self._make_seq(key, bits, mapping):
             self.set_nth_bit_to(state)
 
     def unset_nth_bit(self, n):
@@ -88,3 +83,15 @@ class Adf3114Register:
     @property
     def bin(self):
         return f'{self._bits:024b}'
+
+    # helpers
+    def _find_seq(self, bits: tuple, mapping: dict):
+        vals = [self.nth_bit(bit) for bit in bits]
+        for k, v in mapping.items():
+            if v == vals:
+                return k
+        else:
+            raise ValueError('Wrong power-down bit pattern.')
+
+    def _make_seq(self, key, bits: tuple, mapping: dict):
+        return tuple([[n, bit] for n, bit in zip(bits, mapping[key])])
