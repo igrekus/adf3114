@@ -57,7 +57,6 @@ MUXOUT_MODE = {
 # F2
 #  0   0=negative
 #  1   1=positive
-#
 F2 = DB7
 PD_POLARITY_BITS = (F2, )
 PD_POLARITY = {
