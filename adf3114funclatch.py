@@ -82,7 +82,7 @@ CHARGE_PUMP_MODE = {
 #  1    0   1=mode 1
 #  1    1   2=mode 2
 F5, F4 = DB10, DB9
-FASTLOCK_MODE_BITS = (F5, F4)
+FASTLOCK_MODE_BITS = (F4, F5)
 FASTLOCK_MODE = {
     0: [0, 0],
     1: [1, 0],

@@ -95,7 +95,7 @@ def test_fastlock_mode():
     expect(reg.bin).to_equal('000000000000011000000011')
 
     reg.fastlock_mode = 1
-    expect(reg.bin).to_equal('000000000000010000000011')
+    expect(reg.bin).to_equal('000000000000001000000011')
 
     reg.fastlock_mode = 0
     expect(reg.bin).to_equal('000000000000000000000011')
