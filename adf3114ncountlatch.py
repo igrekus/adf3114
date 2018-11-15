@@ -41,6 +41,12 @@ CP_GAIN_MODE = {
     2: [0],
     3: [1]
 }
+cp_gain_mode_labels = {
+    0: ('Setting 1 perm', 'Charge pump current setting 1 is permanently used.'),
+    1: ('Setting 2 perm', 'Charge pump current setting 2 is permanently used.'),
+    2: ('Setting 1', 'Charge pump current setting 1 is used.'),
+    3: ('Switch to setting 2', 'Charge pump is switched to setting 2. The time spent in setting 2 depends on fastlock mode (see function latch).')
+}
 
 # xx00_0000_0000_0000_0000_0000   --   reserved
 
