@@ -44,7 +44,7 @@ class Adf3114Register:
     def nth_bit(self, n):
         return int(bool(self._bits & (1 << n)))
 
-    def nth_bits(self, numbers: list):
+    def nth_bits(self, numbers: tuple):
         return [self.nth_bit(n) for n in numbers]
 
     def set_nth_bit(self, n):
@@ -70,7 +70,7 @@ class Adf3114Register:
             return
         self._bits ^= (1 << n)
 
-    def unset_bits(self, numbers: list):
+    def unset_bits(self, numbers: tuple):
         for n in numbers:
             self.unset_nth_bit(n)
 
