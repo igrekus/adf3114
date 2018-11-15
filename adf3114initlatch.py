@@ -1,10 +1,10 @@
 from adf3114register import *
 
 # 0000_0000_0000_0000_0000_00xx
-# в режиме initialization latch должны = 1, 1
+# for initialization latch mode must be (1, 1)
 CONTROL_BITS = (DB1, DB0)
 
-# 0000_0000_0000_0x00   --   counter operation
+# 0000_0000_0000_0000_0000_0x00   --   counter operation
 # F1
 #  0   0=normal
 #  1   1=R,A,B counters held in reset
