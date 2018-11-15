@@ -1,5 +1,10 @@
-# 0000_0000_0000_00xx
+# 0000_0000_0000_0000_0000_00xx
 # управляют режимом работы регистра
+
+# https://pypi.org/project/bitarray/
+# https://pypi.org/project/bitstring/
+# https://pypi.org/project/bitstruct/
+
 DB0, \
 DB1, \
 DB2, \
