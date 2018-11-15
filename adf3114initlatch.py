@@ -21,8 +21,7 @@ COUNTER_RESET_MODE = {
 #    1      x     0   1=normal operation
 #    1      0     1   2=async power-down
 #    1      1     1   3=sync power-down
-PD1 = DB3
-PD2 = DB21
+PD2, PD1 = DB21, DB3
 POWER_DOWN_BITS = (PD2, PD1)
 POWER_DOWN_MODE = {
     0: [0, 0],
@@ -41,11 +40,9 @@ POWER_DOWN_MODE = {
 #  1    0    1   5=analog lock detect (n-channel open-drain)
 #  1    1    0   6=serial data output
 #  1    1    1   7=DGND
-M1 = DB4
-M2 = DB5
-M3 = DB6
+M3, M2, M1 = DB6, DB5, DB4
 MUXOUT_BITS = (M3, M2, M1)
-MUXOUT_CONTROL = {
+MUXOUT_MODE = {
     0: [0, 0, 0],
     1: [0, 0, 1],
     2: [0, 1, 0],
@@ -98,13 +95,13 @@ class Adf3114InitLatch(Adf3114Register):
 
     @property
     def muxout_control(self):
-        return self._find_seq(MUXOUT_BITS, MUXOUT_CONTROL)
+        return self._find_seq(MUXOUT_BITS, MUXOUT_MODE)
 
     @muxout_control.setter
     def muxout_control(self, code: int):
-        if code not in MUXOUT_CONTROL:
+        if code not in MUXOUT_MODE:
             raise ValueError('Incorrect muxout control code.')
-        self.set_bit_pattern(code, MUXOUT_BITS, MUXOUT_CONTROL)
+        self.set_bit_pattern(code, MUXOUT_BITS, MUXOUT_MODE)
 
     @property
     def phase_detector_polarity(self):
