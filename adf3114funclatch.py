@@ -1,7 +1,7 @@
 from adf3114register import *
 
 # 0000_0000_0000_0000_0000_00xx
-# for initialization latch mode must be (1, 1)
+# for function latch mode must be (1, 0)
 CONTROL_BITS = (DB1, DB0)
 
 # 0000_0000_0000_0000_0000_0x00   --   counter operation
@@ -179,12 +179,13 @@ PRESCALER_VALUE = {
     3: [1, 1]
 }
 
-class Adf3114InitLatch(Adf3114Register):
+class Adf3114FuncLatch(Adf3114Register):
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)
 
-        self.set_bits(CONTROL_BITS)
+        self.set_nth_bit(CONTROL_BITS[0])
+        self.unset_nth_bit(CONTROL_BITS[1])
 
     @property
     def counter_reset(self):

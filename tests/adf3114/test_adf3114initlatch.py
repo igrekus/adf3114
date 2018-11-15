@@ -76,7 +76,6 @@ def test_pd_polarity():
     expect(reg.bin).to_equal('000000000000000000000011')
 
 
-
 def test_charge_pump():
     reg = Adf3114InitLatch()
     expect(reg.bin).to_equal('000000000000000000000011')
