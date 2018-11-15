@@ -29,6 +29,12 @@ ANTIBACKLASH_PULSE_WIDTH = {
     2: [1, 0],
     3: [1, 1]
 }
+antibacklash_pulse_width_labels = {
+    0: '3.0 нс',
+    1: '1.5 нс',
+    2: '6.5 нс',
+    3: '3.0 нс'
+}
 
 # 0000_xx00_0000_0000_0000_0000   --   test mode
 # T2 | T1   should be (0, 0) for normal operation
