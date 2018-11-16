@@ -1,4 +1,4 @@
-from adf3114register import *
+from adf3114registerbase import *
 
 # 0000_0000_0000_0000_0000_00xx
 # for function latch mode must be (1, 0)
@@ -179,7 +179,7 @@ PRESCALER_VALUE = {
     3: [1, 1]
 }
 
-class Adf3114FuncLatch(Adf3114Register):
+class Adf3114FuncLatch(Adf3114RegisterBase):
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)

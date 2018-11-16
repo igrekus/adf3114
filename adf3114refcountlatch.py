@@ -1,4 +1,4 @@
-from adf3114register import *
+from adf3114registerbase import *
 
 # 0000_0000_0000_0000_0000_00xx
 # for reference counter latch mode must be (0, 0)
@@ -71,7 +71,7 @@ SYNC_MODE = {
 # x000_0000_0000_0000_0000_0000   --   reserved
 
 
-class Adf3114RefcountLatch(Adf3114Register):
+class Adf3114RefcountLatch(Adf3114RegisterBase):
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)

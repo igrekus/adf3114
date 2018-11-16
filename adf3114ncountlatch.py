@@ -1,4 +1,4 @@
-from adf3114register import *
+from adf3114registerbase import *
 
 # 0000_0000_0000_0000_0000_00xx
 # for b(ab) counter latch mode must be (0, 1)
@@ -51,7 +51,7 @@ cp_gain_mode_labels = {
 # xx00_0000_0000_0000_0000_0000   --   reserved
 
 
-class Adf3114NcountLatch(Adf3114Register):
+class Adf3114NcountLatch(Adf3114RegisterBase):
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)
