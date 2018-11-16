@@ -122,3 +122,25 @@ class Adf3114RefcountLatch(Adf3114RegisterBase):
         self.set_bit_pattern(code, SYNC_MODE_BITS, SYNC_MODE)
 
 
+class Adf3114RefcountLatchWidget(QGroupBox):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setTitle('Reference count latch')
+        self.setCheckable(True)
+        self.setChecked(True)
+
+        self._slideRefcount = SpinSlide(1, 16380, 1, '')
+        self._comboAntibacklash = QComboBox()
+        self._comboLockDetectPrec = QComboBox()
+        self._comboSync = QComboBox()
+
+        self._layout = QFormLayout(parent=self)
+        self._layout.addRow('Reference counter', self._slideRefcount)
+        self._layout.addRow('Anti-backlash pulse width', self._comboAntibacklash)
+        self._layout.addRow('Lock detection precision', self._comboLockDetectPrec)
+        self._layout.addRow('Prescaler sync', self._comboSync)
+
+
+

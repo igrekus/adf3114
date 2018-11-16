@@ -176,7 +176,8 @@ PRESCALER_VALUE = {
     3: [1, 1]
 }
 
-class Adf3114InitLatch(Adf3114RegisterBase):
+
+class Adf3114FuncLatch(Adf3114RegisterBase):
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)

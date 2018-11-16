@@ -284,3 +284,37 @@ class Adf3114FuncLatch(Adf3114RegisterBase):
         self.set_bit_pattern(mode, PRESCALER_VALUE_BITS, PRESCALER_VALUE)
 
 
+class Adf3114FuncLatchWidget(QGroupBox):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setTitle('Function latch')
+        self.setCheckable(True)
+        self.setChecked(True)
+
+        self._comboCountResetFunc = QComboBox()
+        self._comboPowdownFunc = QComboBox()
+        self._comboMuxoutFunc = QComboBox()
+        self._comboPdPolarityFunc = QComboBox()
+        self._comboCpOutFunc = QComboBox()
+        self._comboFastlockFunc = QComboBox()
+        self._comboTimerFunc = QComboBox()
+        self._comboCurrent1Func = QComboBox()
+        self._comboCurrent2Func = QComboBox()
+        self._comboPrescalerFunc = QComboBox()
+
+        self._layout = QFormLayout(parent=self)
+        self._layout.addRow('Counter reset', self._comboCountResetFunc)
+        self._layout.addRow('Power-down mode', self._comboPowdownFunc)
+        self._layout.addRow('MUXOUT control', self._comboMuxoutFunc)
+        self._layout.addRow('Phase detector polarity', self._comboPdPolarityFunc)
+        self._layout.addRow('Charge pump output', self._comboCpOutFunc)
+        self._layout.addRow('Fastlock mode', self._comboFastlockFunc)
+        self._layout.addRow('Timer counter control', self._comboTimerFunc)
+        self._layout.addRow('Current setting 1', self._comboCurrent1Func)
+        self._layout.addRow('Current setting 2', self._comboCurrent2Func)
+        self._layout.addRow('Prescaler calue', self._comboPrescalerFunc)
+
+
+

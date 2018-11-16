@@ -96,3 +96,24 @@ class Adf3114NcountLatch(Adf3114RegisterBase):
             raise ValueError('Incorrect CP gain mode.')
         self.set_bit_pattern(code, CP_GAIN_BITS, CP_GAIN_MODE)
 
+
+class Adf3114NcountLatchWidget(QGroupBox):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setTitle('AB count latch')
+        self.setCheckable(True)
+        self.setChecked(True)
+
+        self._slideAcount = SpinSlide(0, 63, 0, '')
+        self._slideBcount = SpinSlide(3, 8191, 1, '')
+        self._comboCpGain = QComboBox()
+
+        self._layout = QFormLayout(parent=self)
+        self._layout.addRow('A counter', self._slideAcount)
+        self._layout.addRow('B counter', self._slideBcount)
+        self._layout.addRow('Charge pump gain', self._comboCpGain)
+
+
+
