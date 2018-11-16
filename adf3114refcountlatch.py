@@ -1,5 +1,7 @@
 from adf3114registerbase import *
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
+
+from mytools.mapmodel import MapModel
 from spinslide import SpinSlide
 
 # map latch bits onto register bits
@@ -32,12 +34,6 @@ ANTIBACKLASH_PULSE_WIDTH = {
     1: [0, 1],
     2: [1, 0],
     3: [1, 1]
-}
-antibacklash_pulse_width_labels = {
-    0: '3.0 нс',
-    1: '1.5 нс',
-    2: '6.5 нс',
-    3: '3.0 нс'
 }
 
 # 0000_xx00_0000_0000_0000_0000   --   test mode
@@ -73,6 +69,13 @@ SYNC_MODE = {
 
 
 class Adf3114RefcountLatch(Adf3114RegisterBase):
+
+    antibacklash_pulse_width_labels = {
+        0: '3.0 нс',
+        1: '1.5 нс',
+        2: '6.5 нс',
+        3: '3.0 нс'
+    }
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)
@@ -142,5 +145,6 @@ class Adf3114RefcountLatchWidget(QGroupBox):
         self._layout.addRow('Lock detection precision', self._comboLockDetectPrec)
         self._layout.addRow('Prescaler sync', self._comboSync)
 
-
+        self._latch = Adf3114RefcountLatch()
+        self._comboAntibacklash.setModel(MapModel(self, self._latch.antibacklash_pulse_width_labels, sort=False))
 

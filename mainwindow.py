@@ -2,9 +2,6 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFormLayout
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
-from adf3114ncountlatch import cp_gain_mode_labels
-from adf3114refcountlatch import antibacklash_pulse_width_labels
-from mytools.mapmodel import MapModel
 from adf3114ncountlatch import Adf3114NcountLatchWidget
 from adf3114refcountlatch import Adf3114RefcountLatchWidget
 from adf3114funclatch import Adf3114FuncLatchWidget
@@ -41,9 +38,6 @@ class MainWindow(QMainWindow):
         self._ui.gridLatch.addWidget(self._initLatch, 0, 0, 2, 1)
 
         # create models
-        self._modelCpGain = MapModel(parent=self, data=cp_gain_mode_labels, sort=False)
-        self._modelAntibacklash = MapModel(parent=self, data=antibacklash_pulse_width_labels, sort=False)
-
         self.initDialog()
 
     def setupUiSignals(self):
