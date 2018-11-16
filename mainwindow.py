@@ -5,7 +5,11 @@ from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from adf3114ncountlatch import cp_gain_mode_labels
 from adf3114refcountlatch import antibacklash_pulse_width_labels
 from mytools.mapmodel import MapModel
-from spinslide import SpinSlide
+from adf3114ncountlatch import Adf3114NcountLatchWidget
+from adf3114refcountlatch import Adf3114RefcountLatchWidget
+from adf3114funclatch import Adf3114FuncLatchWidget
+from adf3114initlatch import Adf3114InitLatchWidget
+
 
 class MainWindow(QMainWindow):
 
@@ -22,15 +26,21 @@ class MainWindow(QMainWindow):
         # create instance variables
         self._ui = uic.loadUi('mainwindow.ui', self)
 
+        # create latch widgets
+        self._ncounterLatch = Adf3114NcountLatchWidget(parent=self)
+        self._ui.gridLatch.addWidget(self._ncounterLatch, 1, 2)
+
+        self._rcounterLatch = Adf3114RefcountLatchWidget(parent=self)
+        self._ui.gridLatch.addWidget(self._rcounterLatch, 0, 2)
+
+        self._funcLatch = Adf3114FuncLatchWidget(parent=self)
+        self._ui.gridLatch.addWidget(self._funcLatch, 0, 1, 2, 1)
+
+        self._initLatch = Adf3114InitLatchWidget(parent=self)
+        self._initLatch.setTitle('Init latch')
+        self._ui.gridLatch.addWidget(self._initLatch, 0, 0, 2, 1)
+
         # create models
-        self._slideRefcount = SpinSlide(1, 16380, 1, '')
-        self._ui.flRefcount.insertRow(0, 'Reference counter', self._slideRefcount)
-
-        self._slideAcount = SpinSlide(0, 63, 0, '')
-        self._ui.flAbcount.insertRow(0, 'A counter', self._slideAcount)
-        self._slideBcount = SpinSlide(3, 8191, 1, '')
-        self._ui.flAbcount.insertRow(3, 'B counter', self._slideBcount)
-
         self._modelCpGain = MapModel(parent=self, data=cp_gain_mode_labels, sort=False)
         self._modelAntibacklash = MapModel(parent=self, data=antibacklash_pulse_width_labels, sort=False)
 
@@ -43,8 +53,9 @@ class MainWindow(QMainWindow):
         # self.measurementFinished.connect(self._plotWidget.updatePlot)
 
     def setupModels(self):
-        self._ui.comboCpGain.setModel(self._modelCpGain)
-        self._ui.comboAntibacklash.setModel(self._modelAntibacklash)
+        pass
+        # self._ui.comboCpGain.setModel(self._modelCpGain)
+        # self._ui.comboAntibacklash.setModel(self._modelAntibacklash)
 
     def initDialog(self):
         self.setupModels()
