@@ -7,7 +7,7 @@ def test_creation():
 
     expect(reg.hex).to_equal('00007B')
     expect(reg.bin).to_equal('000000000000000001111011')
-    expect(str(reg)).to_equal('<Adf3114Register>(bin=000000000000000001111011, hex=00007B, dec=123)')
+    expect(str(reg)).to_equal('<Adf3114RegisterBase>(bin=000000000000000001111011, hex=00007B, dec=123)')
 
 
 def test_bit_set():
@@ -19,7 +19,7 @@ def test_bit_set():
 def test_bit_unset():
     reg = Adf3114RegisterBase(0b111111111111111111111111)
 
-    reg.unset_bits(list(range(1, 24, 2)))
+    reg.unset_bits(tuple(range(1, 24, 2)))
     expect(reg.bin).to_equal('010101010101010101010101')
 
 
