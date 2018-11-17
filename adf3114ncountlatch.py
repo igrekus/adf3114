@@ -1,3 +1,5 @@
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
+
 from mytools.mapmodel import MapModel
 from adf3114registerbase import *
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
@@ -102,6 +104,8 @@ class Adf3114NcountLatch(Adf3114RegisterBase):
 
 class Adf3114NcountLatchWidget(QGroupBox):
 
+    bitmapChanged = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -120,5 +124,21 @@ class Adf3114NcountLatchWidget(QGroupBox):
 
         self._latch = Adf3114NcountLatch()
         self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
+
+        self._slideAcount.valueChanged.connect(self.updateBitmap)
+        self._slideBcount.valueChanged.connect(self.updateBitmap)
+        self._comboCpGain.currentIndexChanged.connect(self.updateBitmap)
+
+    @pyqtSlot(int)
+    def updateBitmap(self, _):
+        self._latch.a_counter = self._slideAcount.value()
+        self._latch.b_counter = self._slideBcount.value()
+        self._latch.cp_gain = self._comboCpGain.currentData(MapModel.RoleNodeId)
+
+        self.bitmapChanged.emit()
+
+    @property
+    def latch(self):
+        return self._latch
 
 
