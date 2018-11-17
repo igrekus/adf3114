@@ -1,3 +1,5 @@
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
+
 from adf3114registerbase import *
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
 
@@ -71,10 +73,22 @@ SYNC_MODE = {
 class Adf3114RefcountLatch(Adf3114RegisterBase):
 
     antibacklash_pulse_width_labels = {
-        0: '3.0 нс',
+        0: '3.0 нс #1',
         1: '1.5 нс',
         2: '6.5 нс',
-        3: '3.0 нс'
+        3: '3.0 нс #2'
+    }
+
+    lock_detect_precision_labels = {
+        0: ('3 cycles', '3 consecutive cycles of phase delay less than 16ns must occur before lock detect is set.'),
+        1: ('5 cycles', '5 consecutive cycles of phase delay less than 16ns must occur before lock detect is set.')
+    }
+
+    precaler_sync_mode = {
+        0: ('Normal operation #1', 'Normal operaion.'),
+        1: ('Nondelayed resync', 'Prescaler output is resynced with nondelayed version of RF input.'),
+        2: ('Normal operation #2', 'Normal operation.'),
+        3: ('Delayed resync', 'Prescaler output is resynced with delayed version of RF input.'),
     }
 
     def __init__(self, bits=0):
@@ -88,8 +102,8 @@ class Adf3114RefcountLatch(Adf3114RegisterBase):
 
     @reference_counter.setter
     def reference_counter(self, value: int):
-        if not 1 < value < 16384:
-            raise ValueError('Incorrect antibacklash pulse width.')
+        if not 0 < value < 16384:
+            raise ValueError('Incorrect reference counter value.')
         bits = [int(bit) for bit in f'{value:014b}']
         mapping = {value: bits}
         self.set_bit_pattern(value, REFCOUNTER_BITS, mapping)
@@ -101,7 +115,7 @@ class Adf3114RefcountLatch(Adf3114RegisterBase):
     @antibacklash_pulse_width.setter
     def antibacklash_pulse_width(self, code):
         if code not in ANTIBACKLASH_PULSE_WIDTH:
-            raise ValueError('Incorrect power down mode.')
+            raise ValueError('Incorrect antibacklash pulse width.')
         self.set_bit_pattern(code, ANTIBACKLASH_PULSE_WIDTH_BITS, ANTIBACKLASH_PULSE_WIDTH)
 
     @property
@@ -121,11 +135,13 @@ class Adf3114RefcountLatch(Adf3114RegisterBase):
     @sync_mode.setter
     def sync_mode(self, code):
         if code not in SYNC_MODE:
-            raise ValueError('Incorrect power down mode.')
+            raise ValueError('Incorrect symc mode.')
         self.set_bit_pattern(code, SYNC_MODE_BITS, SYNC_MODE)
 
 
 class Adf3114RefcountLatchWidget(QGroupBox):
+
+    bitmapChanged = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -134,7 +150,7 @@ class Adf3114RefcountLatchWidget(QGroupBox):
         self.setCheckable(True)
         self.setChecked(True)
 
-        self._slideRefcount = SpinSlide(1, 16380, 1, '')
+        self._slideRefcount = SpinSlide(1, 16383, 1, '')
         self._comboAntibacklash = QComboBox()
         self._comboLockDetectPrec = QComboBox()
         self._comboSync = QComboBox()
@@ -147,4 +163,24 @@ class Adf3114RefcountLatchWidget(QGroupBox):
 
         self._latch = Adf3114RefcountLatch()
         self._comboAntibacklash.setModel(MapModel(self, self._latch.antibacklash_pulse_width_labels, sort=False))
+        self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
+        self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
+        self._comboSync.setModel(MapModel(self, self._latch.precaler_sync_mode, sort=False))
 
+        self._slideRefcount.valueChanged.connect(self.updateBitmap)
+        self._comboAntibacklash.currentIndexChanged.connect(self.updateBitmap)
+        self._comboLockDetectPrec.currentIndexChanged.connect(self.updateBitmap)
+        self._comboSync.currentIndexChanged.connect(self.updateBitmap)
+
+    @pyqtSlot(int)
+    def updateBitmap(self, _):
+        self._latch.reference_counter = self._slideRefcount.value()
+        self._latch.antibacklash_pulse_width = self._comboAntibacklash.currentData(MapModel.RoleNodeId)
+        self._latch.lock_detect_precision = self._comboLockDetectPrec.currentData(MapModel.RoleNodeId)
+        self._latch.sync_mode = self._comboSync.currentData(MapModel.RoleNodeId)
+
+        self.bitmapChanged.emit()
+
+    @property
+    def latch(self):
+        return self._latch
