@@ -37,15 +37,15 @@ class SpinSlide(QHBoxLayout):
         self._slider.setEnabled(enabled)
 
     def _spinChanged(self, value):
-        # self.blockSignals(True)
+        self.blockSignals(True)
         self._slider.setValue(value)
-        # self.blockSignals(False)
+        self.blockSignals(False)
+
         self.valueChanged.emit(value)
 
     def _sliderChanged(self, value):
-        # self.blockSignals(True)
+        self.blockSignals(True)
         self._spin.setValue(value)
-        # self.blockSignals(False)
-        self.valueChanged.emit(value)
+        self.blockSignals(False)
 
 
