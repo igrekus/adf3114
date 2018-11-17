@@ -23,28 +23,30 @@ class MainWindow(QMainWindow):
         # create instance variables
         self._ui = uic.loadUi('mainwindow.ui', self)
 
+        self._domain = Domain()
+
         # create latch widgets
-        self._ncounterLatch = Adf3114NcountLatchWidget(parent=self)
-        self._ui.gridLatch.addWidget(self._ncounterLatch, 1, 2)
+        self._ui.ncounterLatchWidget = Adf3114NcountLatchWidget(parent=self)
+        self._ui.gridLatch.addWidget(self._ui.ncounterLatchWidget, 1, 2)
 
-        self._rcounterLatch = Adf3114RefcountLatchWidget(parent=self)
-        self._ui.gridLatch.addWidget(self._rcounterLatch, 0, 2)
+        self._ui.rcounterLatchWidget = Adf3114RefcountLatchWidget(parent=self)
+        self._ui.gridLatch.addWidget(self._ui.rcounterLatchWidget, 0, 2)
 
-        self._funcLatch = Adf3114FuncLatchWidget(parent=self)
-        self._ui.gridLatch.addWidget(self._funcLatch, 0, 1, 2, 1)
+        self._ui.funcLatchWidget = Adf3114FuncLatchWidget(parent=self)
+        self._ui.gridLatch.addWidget(self._ui.funcLatchWidget, 0, 1, 2, 1)
 
-        self._initLatch = Adf3114InitLatchWidget(parent=self)
-        self._initLatch.setTitle('Init latch')
-        self._ui.gridLatch.addWidget(self._initLatch, 0, 0, 2, 1)
+        self._ui.initLatchWidget = Adf3114InitLatchWidget(parent=self)
+        self._ui.initLatchWidget.setTitle('Init latch')
+        self._ui.gridLatch.addWidget(self._ui.initLatchWidget, 0, 0, 2, 1)
 
         # create models
         self.initDialog()
 
     def setupUiSignals(self):
-        pass
-
-        # self.measurementFinished.connect(self._measureModel.updateModel)
-        # self.measurementFinished.connect(self._plotWidget.updatePlot)
+        self._ui.ncounterLatchWidget.bitmapChanged.connect(self.updateNcounterInput)
+        self._ui.rcounterLatchWidget.bitmapChanged.connect(self.updateRcounterInput)
+        self._ui.funcLatchWidget.bitmapChanged.connect(self.updateFuncInput)
+        self._ui.initLatchWidget.bitmapChanged.connect(self.updateInitInput)
 
     def setupModels(self):
         pass
@@ -56,6 +58,7 @@ class MainWindow(QMainWindow):
         self.setupUiSignals()
 
         self._ui.btnDisconnect.setVisible(False)
+
         # self._ui.comboChip.setModel(self._chipModel)
         #
         # self._ui.tableMeasure.setModel(self._measureModel)
@@ -120,7 +123,7 @@ class MainWindow(QMainWindow):
     # # event handlers
     # def resizeEvent(self, event):
     #     self.refreshView()
-    #
+
     # # autowire callbacks
     # @pyqtSlot()
     # def on_btnSearchInstruments_clicked(self):
@@ -134,42 +137,28 @@ class MainWindow(QMainWindow):
     # def failWith(self, message):
     #     QMessageBox.information(self, "Ошибка", message)
     #
-    # @pyqtSlot()
-    # def on_btnCheckSample_clicked(self):
-    #     try:
-    #         if not self._instrumentManager.checkSample():
-    #             self.failWith("Не удалось найти образец, проверьте подключение.\nПодробности в логах.")
-    #             print('sample not detected')
-    #             return
-    #     except Exception as ex:
-    #         print(ex)
-    #     self.modeReadyToMeasure()
-    #     self.sampleFound.emit()
-    #     self.refreshView()
-    #
-    # @pyqtSlot()
-    # def on_btnMeasureStart_clicked(self):
-    #     print('start measurement task')
-    #
-    #     # if not self._instrumentManager.checkSample():
-    #     #     self.failWith("Не удалось найти образец, проверьте подключение.\nПодробности в логах.")
-    #     #     print('sample not detected')
-    #     #     return
-    #
-    #     self.modeMeasureInProgress()
-    #     params = self.collectParams()
-    #     self._instrumentManager.measure(params)
-    #     self.measurementFinished.emit(params)
-    #     self.modeMeasureFinished()
-    #     self.refreshView()
-    #
-    # @pyqtSlot()
-    # def on_btnMeasureStop_clicked(self):
-    #     # TODO implement
-    #     print('abort measurement task')
-    #     self.modeCheckSample()
-    #
-    # @pyqtSlot()
-    # def on_btnReport_clicked(self):
-    #     print('reporting')
-    #
+    @pyqtSlot()
+    def updateNcounterInput(self):
+        self.updateRegisterInput(self._ui.ncounterLatchWidget.latch)
+
+    @pyqtSlot()
+    def updateRcounterInput(self):
+        self.updateRegisterInput(self._ui.rcounterLatchWidget.latch)
+
+    @pyqtSlot()
+    def updateFuncInput(self):
+        self.updateRegisterInput(self._ui.funcLatchWidget.latch)
+
+    @pyqtSlot()
+    def updateInitInput(self):
+        self.updateRegisterInput(self._ui.initLatchWidget.latch)
+
+    @pyqtSlot(str)
+    def on_editRegister_textChanged(self, text: str):
+        command = f'<f.{text.upper()}.FFFFFF>'
+        self._ui.editCommand.setText(command)
+
+    # helpers
+    def updateRegisterInput(self, latch):
+        self._ui.editRegister.setText(latch.hex)
+
