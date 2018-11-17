@@ -4,6 +4,7 @@
 # https://pypi.org/project/bitarray/
 # https://pypi.org/project/bitstring/
 # https://pypi.org/project/bitstruct/
+# use Bit class?
 
 DB0, \
 DB1, \
@@ -88,6 +89,14 @@ class Adf3114RegisterBase:
     @property
     def bin(self):
         return f'{self._bits:024b}'
+
+    @property
+    def dec(self):
+        return f'{self._bits}'
+
+    @property
+    def value(self):
+        return self._bits
 
     # helpers
     def _find_seq(self, bits: tuple, mapping: dict):
