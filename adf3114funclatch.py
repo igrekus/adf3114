@@ -1,6 +1,9 @@
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
+
 from adf3114registerbase import *
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
-from spinslide import SpinSlide
+
+from mytools.mapmodel import MapModel
 
 # map latch bits onto register bits
 P2, P1, PD2, CPI6, CPI5, CPI4, CPI3, CPI2, CPI1, TC4, TC3, TC2, TC1, F5, F4, F3, F2, M3, M2, M1, PD1, F1, C2, C1 = \
@@ -165,7 +168,7 @@ CURRENT_SETTING_2 = {
 #  0    0   0=8/9
 #  0    1   1=16/17
 #  1    0   2=32/33
-#  1    1   2=64/65
+#  1    1   3=64/65
 PRESCALER_VALUE_BITS = (P2, P1)
 PRESCALER_VALUE = {
     0: [0, 0],
@@ -176,6 +179,82 @@ PRESCALER_VALUE = {
 
 
 class Adf3114FuncLatch(Adf3114RegisterBase):
+
+    counter_reset_mode_labels = {
+        0: ('Normal', 'Normal operation.'),
+        1: ('Reset', 'R, A, B counters held in reset.')
+    }
+
+    power_down_mode_labels = {
+        0: ('Async power-down #1', 'Asynchronous power-down.'),
+        1: ('Normal operation', 'Normal operation'),
+        2: ('Async power-down #2', 'Asynchronous power-down.'),
+        3: ('Sync power-down', 'Synchronous power-down.')
+    }
+
+    muxout_mode_labels = {
+        0: ('3-state', 'Three-state output.'),
+        1: ('Digital lock detect', 'Digital lock detect (active high).'),
+        2: ('N divider', 'N divider output.'),
+        3: ('DVdd', 'DVdd.'),
+        4: ('R divider', 'R divider output.'),
+        5: ('Analog lock detect', 'Analog lock detect (n-channel open-drain.'),
+        6: ('Serial out', 'Serial data output'),
+        7: ('DGND', 'DGND.'),
+    }
+
+    pd_polarity_labels = {
+        0: 'Negative',
+        1: 'Positive'
+    }
+
+    charge_pump_output_mode_labels = {
+        0: 'Normal output',
+        1: 'Three-state'
+    }
+
+    fastlock_mode_labels = {
+        0: ('Disabled', 'Fastlock disabled.'),
+        1: ('Mode 1', 'Fastlock mode 1.'),
+        2: ('Mode 2', 'Fastlock mode 2.'),
+    }
+
+    timer_counter_mode_labels = {
+        0: '3 PFD cycles',
+        1: '7 PFD cycles',
+        2: '11 PFD cycles',
+        3: '15 PFD cycles',
+        4: '19 PFD cycles',
+        5: '23 PFD cycles',
+        6: '27 PFD cycles',
+        7: '31 PFD cycles',
+        8: '35 PFD cycles',
+        9: '39 PFD cycles',
+        10: '43 PFD cycles',
+        11: '47 PFD cycles',
+        12: '51 PFD cycles',
+        13: '55 PFD cycles',
+        14: '59 PFD cycles',
+        15: '63 PFD cycles',
+    }
+
+    current_setting_labels = {
+        0: ('1.09 / 0.63 / 0.29', '2.7кОм / 4.7кОм / 10кОм'),
+        1: ('2.18 / 1.25 / 0.59', '2.7кОм / 4.7кОм / 10кОм'),
+        2: ('3.72 / 1.88 / 0.88', '2.7кОм / 4.7кОм / 10кОм'),
+        3: ('4.36 / 2.50 / 1.76', '2.7кОм / 4.7кОм / 10кОм'),
+        4: ('5.44 / 3.13 / 1.47', '2.7кОм / 4.7кОм / 10кОм'),
+        5: ('6.53 / 3.75 / 1.76', '2.7кОм / 4.7кОм / 10кОм'),
+        6: ('7.62 / 4.38 / 2.06', '2.7кОм / 4.7кОм / 10кОм'),
+        7: ('8.70 / 5.00 / 2.36', '2.7кОм / 4.7кОм / 10кОм'),
+    }
+
+    prescaler_value_labels = {
+        0: '8/9',
+        1: '16/17',
+        2: '32/33',
+        3: '64/65',
+    }
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)
@@ -286,6 +365,8 @@ class Adf3114FuncLatch(Adf3114RegisterBase):
 
 class Adf3114FuncLatchWidget(QGroupBox):
 
+    bitmapChanged = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -293,28 +374,69 @@ class Adf3114FuncLatchWidget(QGroupBox):
         self.setCheckable(True)
         self.setChecked(True)
 
-        self._comboCountResetFunc = QComboBox()
-        self._comboPowdownFunc = QComboBox()
-        self._comboMuxoutFunc = QComboBox()
-        self._comboPdPolarityFunc = QComboBox()
-        self._comboCpOutFunc = QComboBox()
-        self._comboFastlockFunc = QComboBox()
-        self._comboTimerFunc = QComboBox()
-        self._comboCurrent1Func = QComboBox()
-        self._comboCurrent2Func = QComboBox()
-        self._comboPrescalerFunc = QComboBox()
+        self._comboCountReset = QComboBox()
+        self._comboPowdown = QComboBox()
+        self._comboMuxout = QComboBox()
+        self._comboPdPolarity = QComboBox()
+        self._comboCpOut = QComboBox()
+        self._comboFastlock = QComboBox()
+        self._comboTimer = QComboBox()
+        self._comboCurrent1 = QComboBox()
+        self._comboCurrent2 = QComboBox()
+        self._comboPrescaler = QComboBox()
 
         self._layout = QFormLayout(parent=self)
-        self._layout.addRow('Counter reset', self._comboCountResetFunc)
-        self._layout.addRow('Power-down mode', self._comboPowdownFunc)
-        self._layout.addRow('MUXOUT control', self._comboMuxoutFunc)
-        self._layout.addRow('Phase detector polarity', self._comboPdPolarityFunc)
-        self._layout.addRow('Charge pump output', self._comboCpOutFunc)
-        self._layout.addRow('Fastlock mode', self._comboFastlockFunc)
-        self._layout.addRow('Timer counter control', self._comboTimerFunc)
-        self._layout.addRow('Current setting 1', self._comboCurrent1Func)
-        self._layout.addRow('Current setting 2', self._comboCurrent2Func)
-        self._layout.addRow('Prescaler calue', self._comboPrescalerFunc)
+        self._layout.addRow('Counter reset', self._comboCountReset)
+        self._layout.addRow('Power-down mode', self._comboPowdown)
+        self._layout.addRow('MUXOUT control', self._comboMuxout)
+        self._layout.addRow('Phase detector polarity', self._comboPdPolarity)
+        self._layout.addRow('Charge pump output', self._comboCpOut)
+        self._layout.addRow('Fastlock mode', self._comboFastlock)
+        self._layout.addRow('Timer counter control', self._comboTimer)
+        self._layout.addRow('Current setting 1', self._comboCurrent1)
+        self._layout.addRow('Current setting 2', self._comboCurrent2)
+        self._layout.addRow('Prescaler calue', self._comboPrescaler)
 
+        self._latch = Adf3114FuncLatch()
+        self._comboCountReset.setModel(MapModel(self, self._latch.counter_reset_mode_labels, sort=False))
+        self._comboPowdown.setModel(MapModel(self, self._latch.power_down_mode_labels, sort=False))
+        self._comboMuxout.setModel(MapModel(self, self._latch.muxout_mode_labels, sort=False))
+        self._comboPdPolarity.setModel(MapModel(self, self._latch.pd_polarity_labels, sort=False))
+        self._comboCpOut.setModel(MapModel(self, self._latch.charge_pump_output_mode_labels, sort=False))
+        self._comboFastlock.setModel(MapModel(self, self._latch.fastlock_mode_labels, sort=False))
+        self._comboTimer.setModel(MapModel(self, self._latch.timer_counter_mode_labels, sort=False))
+        self._comboCurrent1.setModel(MapModel(self, self._latch.current_setting_labels, sort=False))
+        self._comboCurrent2.setModel(MapModel(self, self._latch.current_setting_labels, sort=False))
+        self._comboPrescaler.setModel(MapModel(self, self._latch.prescaler_value_labels, sort=False))
+
+        self._comboCountReset.currentIndexChanged.connect(self.updateBitmap)
+        self._comboPowdown.currentIndexChanged.connect(self.updateBitmap)
+        self._comboMuxout.currentIndexChanged.connect(self.updateBitmap)
+        self._comboPdPolarity.currentIndexChanged.connect(self.updateBitmap)
+        self._comboCpOut.currentIndexChanged.connect(self.updateBitmap)
+        self._comboFastlock.currentIndexChanged.connect(self.updateBitmap)
+        self._comboTimer.currentIndexChanged.connect(self.updateBitmap)
+        self._comboCurrent1.currentIndexChanged.connect(self.updateBitmap)
+        self._comboCurrent2.currentIndexChanged.connect(self.updateBitmap)
+        self._comboPrescaler.currentIndexChanged.connect(self.updateBitmap)
+
+    @pyqtSlot(int)
+    def updateBitmap(self, _):
+        self._latch.counter_reset = self._comboCountReset.currentData(MapModel.RoleNodeId)
+        self._latch.power_down_mode = self._comboPowdown.currentData(MapModel.RoleNodeId)
+        self._latch.muxout_control = self._comboMuxout.currentData(MapModel.RoleNodeId)
+        self._latch.phase_detector_polarity = self._comboPdPolarity.currentData(MapModel.RoleNodeId)
+        self._latch.charge_pump_mode = self._comboCpOut.currentData(MapModel.RoleNodeId)
+        self._latch.fastlock_mode = self._comboFastlock.currentData(MapModel.RoleNodeId)
+        self._latch.timer_counter_mode = self._comboTimer.currentData(MapModel.RoleNodeId)
+        self._latch.current_setting_1 = self._comboCurrent1.currentData(MapModel.RoleNodeId)
+        self._latch.current_setting_2 = self._comboCurrent2.currentData(MapModel.RoleNodeId)
+        self._latch.prescale_value = self._comboPrescaler.currentData(MapModel.RoleNodeId)
+
+        self.bitmapChanged.emit()
+
+    @property
+    def latch(self):
+        return self._latch
 
 
