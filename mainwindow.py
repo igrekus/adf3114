@@ -6,6 +6,7 @@ from adf3114ncountlatch import Adf3114NcountLatchWidget
 from adf3114refcountlatch import Adf3114RefcountLatchWidget
 from adf3114funclatch import Adf3114FuncLatchWidget
 from adf3114initlatch import Adf3114InitLatchWidget
+from domain import Domain
 
 
 class MainWindow(QMainWindow):
@@ -23,7 +24,7 @@ class MainWindow(QMainWindow):
         # create instance variables
         self._ui = uic.loadUi('mainwindow.ui', self)
 
-        self._domain = Domain()
+        self._domain = Domain(parent=self)
 
         # create latch widgets
         self._ui.ncounterLatchWidget = Adf3114NcountLatchWidget(parent=self)
@@ -50,8 +51,6 @@ class MainWindow(QMainWindow):
 
     def setupModels(self):
         pass
-        # self._ui.comboCpGain.setModel(self._modelCpGain)
-        # self._ui.comboAntibacklash.setModel(self._modelAntibacklash)
 
     def initDialog(self):
         self.setupModels()
@@ -59,84 +58,16 @@ class MainWindow(QMainWindow):
 
         self._ui.btnDisconnect.setVisible(False)
 
-        # self._ui.comboChip.setModel(self._chipModel)
-        #
-        # self._ui.tableMeasure.setModel(self._measureModel)
+    @pyqtSlot()
+    def on_btnConnect_clicked(self):
+        if not self._domain.connectProgr():
+            QMessageBox.warning(self, 'Ошибка',
+                                'Не найден программатор, проверьте подкючение.')
 
-        # self.refreshView()
+    @pyqtSlot()
+    def on_btnWrite_clicked(self):
+        self._domain.send(self._ui.editCommand.text())
 
-    # # UI utility methods
-    # def refreshView(self):
-    #     self.resizeTable()
-    #
-    # def resizeTable(self):
-    #     self._ui.tableMeasure.resizeRowsToContents()
-    #     self._ui.tableMeasure.resizeColumnsToContents()
-    #
-    # def modeSearchInstruments(self):
-    #     self._ui.btnMeasureStop.hide()
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setEnabled(False)
-    #
-    # def modeCheckSample(self):
-    #     self._ui.btnCheckSample.setEnabled(True)
-    #     self._ui.comboChip.setEnabled(True)
-    #     self._ui.btnMeasureStart.show()
-    #     self._ui.btnMeasureStart.setEnabled(False)
-    #     self._ui.btnMeasureStop.hide()
-    #     analyzer, progr = self._instrumentManager.getInstrumentNames()
-    #     self._ui.editAnalyzer.setText(analyzer)
-    #     self._ui.editProg.setText(progr)
-    #
-    # def modeReadyToMeasure(self):
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setEnabled(True)
-    #
-    # def modeMeasureInProgress(self):
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setVisible(False)
-    #     self._ui.btnMeasureStop.setVisible(True)
-    #
-    # def modeMeasureFinished(self):
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setVisible(False)
-    #     self._ui.btnMeasureStop.setVisible(True)
-    #
-    # def collectParams(self):
-    #     chip_type = self._ui.comboChip.currentData(MapModel.RoleNodeId)
-    #     return chip_type
-    #
-    # # instrument control methods
-    # def search(self):
-    #     if not self._instrumentManager.findInstruments():
-    #         QMessageBox.information(self, "Ошибка",
-    #                                 "Не удалось найти инструменты, проверьте подключение.\nПодробности в логах.")
-    #         return False
-    #
-    #     print('found all instruments, enabling sample test')
-    #     return True
-    #
-    # # event handlers
-    # def resizeEvent(self, event):
-    #     self.refreshView()
-
-    # # autowire callbacks
-    # @pyqtSlot()
-    # def on_btnSearchInstruments_clicked(self):
-    #     self.modeSearchInstruments()
-    #     if not self.search():
-    #         return
-    #     self.modeCheckSample()
-    #     self.instrumentsFound.emit()
-    #
-    #
-    # def failWith(self, message):
-    #     QMessageBox.information(self, "Ошибка", message)
-    #
     @pyqtSlot()
     def updateNcounterInput(self):
         self.updateRegisterInput(self._ui.ncounterLatchWidget.latch)
