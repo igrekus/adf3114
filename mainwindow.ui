@@ -85,6 +85,9 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="text">
+         <string>&lt;n&gt;</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
