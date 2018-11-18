@@ -56,13 +56,39 @@ class MainWindow(QMainWindow):
         self.setupModels()
         self.setupUiSignals()
 
+        self.modeDisconnected()
+
+    def modeDisconnected(self):
+        self._ui.btnConnect.setVisible(True)
         self._ui.btnDisconnect.setVisible(False)
+        self._ui.btnWrite.setEnabled(False)
+        self._ui.ncounterLatchWidget.setEnabled(False)
+        self._ui.rcounterLatchWidget.setEnabled(False)
+        self._ui.funcLatchWidget.setEnabled(False)
+        self._ui.initLatchWidget.setEnabled(False)
+
+    def modeConnected(self):
+        self._ui.btnConnect.setVisible(False)
+        self._ui.btnDisconnect.setVisible(True)
+        self._ui.btnWrite.setEnabled(True)
+        self._ui.ncounterLatchWidget.setEnabled(True)
+        self._ui.rcounterLatchWidget.setEnabled(True)
+        self._ui.funcLatchWidget.setEnabled(True)
+        self._ui.initLatchWidget.setEnabled(True)
 
     @pyqtSlot()
     def on_btnConnect_clicked(self):
         if not self._domain.connectProgr():
             QMessageBox.warning(self, 'Ошибка',
                                 'Не найден программатор, проверьте подкючение.')
+
+        self.modeConnected()
+
+    @pyqtSlot()
+    def on_btnDisconnect_clicked(self):
+        self._domain.disconnectProgr()
+
+        self.modeDisconnected()
 
     @pyqtSlot()
     def on_btnWrite_clicked(self):

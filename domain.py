@@ -57,6 +57,9 @@ class Domain(QObject):
                                            stopbits=serial.STOPBITS_ONE, timeout=1)
         return bool(self._progr)
 
+    def disconnectProgr(self):
+        self._progr.disconnect()
+
     def send(self, command):
         try:
             res = self._progr.query(command)
