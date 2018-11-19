@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFormLayout
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QButtonGroup
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
 from adf3114ncountlatch import Adf3114NcountLatchWidget
@@ -40,14 +40,23 @@ class MainWindow(QMainWindow):
         self._ui.initLatchWidget.setTitle('Init latch')
         self._ui.gridLatch.addWidget(self._ui.initLatchWidget, 0, 0, 2, 1)
 
+        self._bitGroup = QButtonGroup(self)
+        self._bitGroup.setExclusive(False)
+        for index, box in enumerate((getattr(self._ui, f'cbox{index:02d}') for index in range(24))):
+            self._bitGroup.addButton(box, index)
+
         # create models
         self.initDialog()
+
+        # self.size()
 
     def setupUiSignals(self):
         self._ui.ncounterLatchWidget.bitmapChanged.connect(self.updateNcounterInput)
         self._ui.rcounterLatchWidget.bitmapChanged.connect(self.updateRcounterInput)
         self._ui.funcLatchWidget.bitmapChanged.connect(self.updateFuncInput)
         self._ui.initLatchWidget.bitmapChanged.connect(self.updateInitInput)
+
+        self._bitGroup.buttonToggled[int, bool].connect(self.on_bitGroup_buttonToggled)
 
     def setupModels(self):
         pass
@@ -122,17 +131,40 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot(str)
     def on_editHex_textChanged(self, text: str):
-        if text:
-            self.blockSignals(True)
-            self._ui.editCommand.setText(f'<f.{text.upper()}>')
-            self._ui.editBin.setText(f'{int(text, 16):024b}')
-            self.blockSignals(False)
+        if not text:
+            return
 
+        # self._ui.editCommand.blockSignals(True)
+        # self._ui.editBin.blockSignals(True)
+
+        self._ui.editCommand.setText(f'<f.{text.upper()}>')
+        self._ui.editBin.setText(f'{int(text, 16):024b}')
+
+        # self._ui.editBin.blockSignals(False)
+        # self._ui.editCommand.blockSignals(False)
+
+    @pyqtSlot(str)
     def on_editBin_textChanged(self, text: str):
-        if text:
-            self.blockSignals(True)
-            self._ui.editHex.setText(f'{int(text, 2):06X}')
-            self.blockSignals(False)
+        if not text:
+            return
+
+        # self._ui.editHex.blockSignals(True)
+        # self._bitGroup.blockSignals(True)
+
+        self._ui.editHex.setText(f'{int(text, 2):06X}')
+        for box, state in zip(self._bitGroup.buttons(), reversed([bool(int(c)) for c in self._ui.editBin.text()])):
+            box.setChecked(state)
+
+        # self._bitGroup.blockSignals(False)
+        # self._ui.editHex.blockSignals(False)
+
+    @pyqtSlot(int, bool)
+    def on_bitGroup_buttonToggled(self, _):
+        # self._ui.editBin.blockSignals(True)
+
+        self._ui.editBin.setText(''.join(list(reversed([str(int(b.isChecked())) for b in self._bitGroup.buttons()]))))
+
+        # self._ui.editBin.blockSignals(False)
 
     # helpers
     def updateRegisterInput(self, latch):
