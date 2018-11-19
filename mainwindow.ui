@@ -35,23 +35,70 @@
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Регистр</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="editRegister">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="editHex">
         <property name="inputMask">
-         <string>HHHHHH</string>
+         <string>hhhhhh</string>
         </property>
         <property name="text">
          <string>000000</string>
         </property>
         <property name="maxLength">
          <number>6</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="lblHex">
+        <property name="text">
+         <string>Hex</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lblCommand">
+        <property name="text">
+         <string>Команда</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="editCommand">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>&lt;n&gt;</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="btnWrite">
+        <property name="text">
+         <string>ЗАПИСЬ</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lblBin">
+        <property name="text">
+         <string>Bin</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="editBin">
+        <property name="inputMask">
+         <string>bbbbbbbbbbbbbbbbbbbbbbbb</string>
+        </property>
+        <property name="text">
+         <string>000000000000000000000000</string>
+        </property>
+        <property name="maxLength">
+         <number>24</number>
         </property>
        </widget>
       </item>
@@ -72,30 +119,6 @@
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Команда</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="editCommand">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="btnWrite">
-        <property name="text">
-         <string>ЗАПИСЬ</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </item>

@@ -6,6 +6,7 @@ from adf3114ncountlatch import Adf3114NcountLatchWidget
 from adf3114refcountlatch import Adf3114RefcountLatchWidget
 from adf3114funclatch import Adf3114FuncLatchWidget
 from adf3114initlatch import Adf3114InitLatchWidget
+from domain import Domain
 
 
 class MainWindow(QMainWindow):
@@ -23,7 +24,7 @@ class MainWindow(QMainWindow):
         # create instance variables
         self._ui = uic.loadUi('mainwindow.ui', self)
 
-        self._domain = Domain()
+        self._domain = Domain(parent=self)
 
         # create latch widgets
         self._ui.ncounterLatchWidget = Adf3114NcountLatchWidget(parent=self)
@@ -50,93 +51,59 @@ class MainWindow(QMainWindow):
 
     def setupModels(self):
         pass
-        # self._ui.comboCpGain.setModel(self._modelCpGain)
-        # self._ui.comboAntibacklash.setModel(self._modelAntibacklash)
 
     def initDialog(self):
         self.setupModels()
         self.setupUiSignals()
 
+        self.modeDisconnected()
+
+    def modeDisconnected(self):
+        self._ui.btnConnect.setVisible(True)
         self._ui.btnDisconnect.setVisible(False)
+        self._ui.btnWrite.setEnabled(False)
 
-        # self._ui.comboChip.setModel(self._chipModel)
-        #
-        # self._ui.tableMeasure.setModel(self._measureModel)
+        self._ui.ncounterLatchWidget.setEnabled(False)
+        self._ui.rcounterLatchWidget.setEnabled(False)
+        self._ui.funcLatchWidget.setEnabled(False)
+        self._ui.initLatchWidget.setEnabled(False)
 
-        # self.refreshView()
+        self._ui.editBin.setEnabled(False)
+        self._ui.editHex.setEnabled(False)
+        self._ui.editCommand.setEnabled(False)
 
-    # # UI utility methods
-    # def refreshView(self):
-    #     self.resizeTable()
-    #
-    # def resizeTable(self):
-    #     self._ui.tableMeasure.resizeRowsToContents()
-    #     self._ui.tableMeasure.resizeColumnsToContents()
-    #
-    # def modeSearchInstruments(self):
-    #     self._ui.btnMeasureStop.hide()
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setEnabled(False)
-    #
-    # def modeCheckSample(self):
-    #     self._ui.btnCheckSample.setEnabled(True)
-    #     self._ui.comboChip.setEnabled(True)
-    #     self._ui.btnMeasureStart.show()
-    #     self._ui.btnMeasureStart.setEnabled(False)
-    #     self._ui.btnMeasureStop.hide()
-    #     analyzer, progr = self._instrumentManager.getInstrumentNames()
-    #     self._ui.editAnalyzer.setText(analyzer)
-    #     self._ui.editProg.setText(progr)
-    #
-    # def modeReadyToMeasure(self):
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setEnabled(True)
-    #
-    # def modeMeasureInProgress(self):
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setVisible(False)
-    #     self._ui.btnMeasureStop.setVisible(True)
-    #
-    # def modeMeasureFinished(self):
-    #     self._ui.btnCheckSample.setEnabled(False)
-    #     self._ui.comboChip.setEnabled(False)
-    #     self._ui.btnMeasureStart.setVisible(False)
-    #     self._ui.btnMeasureStop.setVisible(True)
-    #
-    # def collectParams(self):
-    #     chip_type = self._ui.comboChip.currentData(MapModel.RoleNodeId)
-    #     return chip_type
-    #
-    # # instrument control methods
-    # def search(self):
-    #     if not self._instrumentManager.findInstruments():
-    #         QMessageBox.information(self, "Ошибка",
-    #                                 "Не удалось найти инструменты, проверьте подключение.\nПодробности в логах.")
-    #         return False
-    #
-    #     print('found all instruments, enabling sample test')
-    #     return True
-    #
-    # # event handlers
-    # def resizeEvent(self, event):
-    #     self.refreshView()
+    def modeConnected(self):
+        self._ui.btnConnect.setVisible(False)
+        self._ui.btnDisconnect.setVisible(True)
+        self._ui.btnWrite.setEnabled(True)
 
-    # # autowire callbacks
-    # @pyqtSlot()
-    # def on_btnSearchInstruments_clicked(self):
-    #     self.modeSearchInstruments()
-    #     if not self.search():
-    #         return
-    #     self.modeCheckSample()
-    #     self.instrumentsFound.emit()
-    #
-    #
-    # def failWith(self, message):
-    #     QMessageBox.information(self, "Ошибка", message)
-    #
+        self._ui.ncounterLatchWidget.setEnabled(True)
+        self._ui.rcounterLatchWidget.setEnabled(True)
+        self._ui.funcLatchWidget.setEnabled(True)
+        self._ui.initLatchWidget.setEnabled(True)
+
+        self._ui.editBin.setEnabled(True)
+        self._ui.editHex.setEnabled(True)
+        self._ui.editCommand.setEnabled(True)
+
+    @pyqtSlot()
+    def on_btnConnect_clicked(self):
+        if not self._domain.connectProgr():
+            QMessageBox.warning(self, 'Ошибка',
+                                'Не найден программатор, проверьте подкючение.')
+
+        self.modeConnected()
+
+    @pyqtSlot()
+    def on_btnDisconnect_clicked(self):
+        self._domain.disconnectProgr()
+
+        self.modeDisconnected()
+
+    @pyqtSlot()
+    def on_btnWrite_clicked(self):
+        self._domain.send(self._ui.editCommand.text())
+
     @pyqtSlot()
     def updateNcounterInput(self):
         self.updateRegisterInput(self._ui.ncounterLatchWidget.latch)
@@ -154,11 +121,20 @@ class MainWindow(QMainWindow):
         self.updateRegisterInput(self._ui.initLatchWidget.latch)
 
     @pyqtSlot(str)
-    def on_editRegister_textChanged(self, text: str):
-        command = f'<f.{text.upper()}.FFFFFF>'
-        self._ui.editCommand.setText(command)
+    def on_editHex_textChanged(self, text: str):
+        if text:
+            self.blockSignals(True)
+            self._ui.editCommand.setText(f'<f.{text.upper()}>')
+            self._ui.editBin.setText(f'{int(text, 16):024b}')
+            self.blockSignals(False)
+
+    def on_editBin_textChanged(self, text: str):
+        if text:
+            self.blockSignals(True)
+            self._ui.editHex.setText(f'{int(text, 2):06X}')
+            self.blockSignals(False)
 
     # helpers
     def updateRegisterInput(self, latch):
-        self._ui.editRegister.setText(latch.hex)
+        self._ui.editHex.setText(latch.hex)
 
