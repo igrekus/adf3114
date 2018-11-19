@@ -62,19 +62,29 @@ class MainWindow(QMainWindow):
         self._ui.btnConnect.setVisible(True)
         self._ui.btnDisconnect.setVisible(False)
         self._ui.btnWrite.setEnabled(False)
+
         self._ui.ncounterLatchWidget.setEnabled(False)
         self._ui.rcounterLatchWidget.setEnabled(False)
         self._ui.funcLatchWidget.setEnabled(False)
         self._ui.initLatchWidget.setEnabled(False)
 
+        self._ui.editBin.setEnabled(False)
+        self._ui.editHex.setEnabled(False)
+        self._ui.editCommand.setEnabled(False)
+
     def modeConnected(self):
         self._ui.btnConnect.setVisible(False)
         self._ui.btnDisconnect.setVisible(True)
         self._ui.btnWrite.setEnabled(True)
+
         self._ui.ncounterLatchWidget.setEnabled(True)
         self._ui.rcounterLatchWidget.setEnabled(True)
         self._ui.funcLatchWidget.setEnabled(True)
         self._ui.initLatchWidget.setEnabled(True)
+
+        self._ui.editBin.setEnabled(True)
+        self._ui.editHex.setEnabled(True)
+        self._ui.editCommand.setEnabled(True)
 
     @pyqtSlot()
     def on_btnConnect_clicked(self):
@@ -111,11 +121,20 @@ class MainWindow(QMainWindow):
         self.updateRegisterInput(self._ui.initLatchWidget.latch)
 
     @pyqtSlot(str)
-    def on_editRegister_textChanged(self, text: str):
-        command = f'<f.{text.upper()}.FFFFFF>'
-        self._ui.editCommand.setText(command)
+    def on_editHex_textChanged(self, text: str):
+        if text:
+            self.blockSignals(True)
+            self._ui.editCommand.setText(f'<f.{text.upper()}>')
+            self._ui.editBin.setText(f'{int(text, 16):024b}')
+            self.blockSignals(False)
+
+    def on_editBin_textChanged(self, text: str):
+        if text:
+            self.blockSignals(True)
+            self._ui.editHex.setText(f'{int(text, 2):06X}')
+            self.blockSignals(False)
 
     # helpers
     def updateRegisterInput(self, latch):
-        self._ui.editRegister.setText(latch.hex)
+        self._ui.editHex.setText(latch.hex)
 
