@@ -1,8 +1,9 @@
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QStringListModel
 
+from bitmodel import BitModel
 from mytools.mapmodel import MapModel
 from adf4113registerbase import *
-from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
+from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QLineEdit, QTableView
 from spinslide import SpinSlide
 
 # map latch bits onto register bits
@@ -116,15 +117,44 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._slideAcount = SpinSlide(0, 63, 0, '')
         self._slideBcount = SpinSlide(3, 8191, 1, '')
         self._comboCpGain = QComboBox()
+        self._editBin = QLineEdit()
+        self._editHex = QLineEdit()
+        self._comboBits = QComboBox()
+        self._bitView = QTableView()
 
         self._layout = QFormLayout(parent=self)
+
+        self._latch = Adf4113NcountLatch()
+
+        self._init()
+
+    def _init(self):
+        self._setupSignals()
+
         self._layout.addRow('A counter', self._slideAcount)
         self._layout.addRow('B counter', self._slideBcount)
         self._layout.addRow('Charge pump gain', self._comboCpGain)
+        self._layout.addRow('Bits', self._comboBits)
+        self._layout.addRow('Bin', self._editBin)
+        self._layout.addRow('Hex', self._editHex)
 
-        self._latch = Adf4113NcountLatch()
         self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
+        self._editBin.setText(self._latch.bin)
+        self._editHex.setText(self._latch.hex)
 
+        self._comboBits.setModel(BitModel(rowSize=8, bits=self._latch.bin,
+                                          labels=['_', '_', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
+                                                  'B8', 'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1',
+                                                  'A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'C2', 'C1'], parent=self))
+        self._comboBits.setView(self._bitView)
+
+        self._bitView.horizontalHeader().setVisible(False)
+        self._bitView.verticalHeader().setVisible(False)
+        self._bitView.verticalHeader().setDefaultSectionSize(20)
+        self._bitView.resizeColumnsToContents()
+        # self._bitView.resizeRowsToContents()
+
+    def _setupSignals(self):
         self._slideAcount.valueChanged.connect(self.updateBitmap)
         self._slideBcount.valueChanged.connect(self.updateBitmap)
         self._comboCpGain.currentIndexChanged.connect(self.updateBitmap)
@@ -134,7 +164,8 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._latch.a_counter = self._slideAcount.value()
         self._latch.b_counter = self._slideBcount.value()
         self._latch.cp_gain = self._comboCpGain.currentData(MapModel.RoleNodeId)
-
+        self._editBin.setText(self._latch.bin)
+        self._editHex.setText(self._latch.hex)
         self.bitmapChanged.emit()
 
     @property
