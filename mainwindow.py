@@ -56,6 +56,11 @@ class MainWindow(QMainWindow):
         self._ui.funcLatchWidget.bitmapChanged.connect(self.updateFuncInput)
         self._ui.initLatchWidget.bitmapChanged.connect(self.updateInitInput)
 
+        self._ui.ncounterLatchWidget.toggled.connect(self.onLatchChecked)
+        self._ui.rcounterLatchWidget.toggled.connect(self.onLatchChecked)
+        self._ui.funcLatchWidget.toggled.connect(self.onLatchChecked)
+        self._ui.initLatchWidget.toggled.connect(self.onLatchChecked)
+
         self._bitGroup.buttonToggled[int, bool].connect(self.on_bitGroup_buttonToggled)
 
     def setupModels(self):
@@ -121,19 +126,19 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def updateNcounterInput(self):
-        self.updateRegisterInput(self._ui.ncounterLatchWidget.latch)
+        self._updateRegisterInput(self._ui.ncounterLatchWidget.latch)
 
     @pyqtSlot()
     def updateRcounterInput(self):
-        self.updateRegisterInput(self._ui.rcounterLatchWidget.latch)
+        self._updateRegisterInput(self._ui.rcounterLatchWidget.latch)
 
     @pyqtSlot()
     def updateFuncInput(self):
-        self.updateRegisterInput(self._ui.funcLatchWidget.latch)
+        self._updateRegisterInput(self._ui.funcLatchWidget.latch)
 
     @pyqtSlot()
     def updateInitInput(self):
-        self.updateRegisterInput(self._ui.initLatchWidget.latch)
+        self._updateRegisterInput(self._ui.initLatchWidget.latch)
 
     @pyqtSlot(str)
     def on_editHex_textChanged(self, text: str):
@@ -143,7 +148,7 @@ class MainWindow(QMainWindow):
         # self._ui.editCommand.blockSignals(True)
         # self._ui.editBin.blockSignals(True)
 
-        self._ui.editCommand.setText(f'<f.{text.upper()}>')
+        self._buildCommand()
         self._ui.editBin.setText(f'{int(text, 16):024b}')
 
         # self._ui.editBin.blockSignals(False)
@@ -172,7 +177,26 @@ class MainWindow(QMainWindow):
 
         # self._ui.editBin.blockSignals(False)
 
+    @pyqtSlot(bool)
+    def onLatchChecked(self, _):
+        self.on_editHex_textChanged(self._ui.editHex.text())
+
     # helpers
-    def updateRegisterInput(self, latch):
+    def _updateRegisterInput(self, latch):
         self._ui.editHex.setText(latch.hex)
+
+    def _buildCommand(self):
+        def get_hex(widget):
+            if not widget.isChecked():
+                return ''
+            return f'.{widget.latch.hex}'
+
+        cmd = f'<f' \
+              f'{get_hex(self._ui.initLatchWidget)}' \
+              f'{get_hex(self._ui.funcLatchWidget)}' \
+              f'{get_hex(self._ui.rcounterLatchWidget)}' \
+              f'{get_hex(self._ui.ncounterLatchWidget)}>'
+
+        self._ui.editCommand.setText(cmd)
+
 
