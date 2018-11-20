@@ -2,10 +2,10 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QButtonGroup
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
-from adf3114ncountlatch import Adf3114NcountLatchWidget
-from adf3114refcountlatch import Adf3114RefcountLatchWidget
-from adf3114funclatch import Adf3114FuncLatchWidget
-from adf3114initlatch import Adf3114InitLatchWidget
+from adf4113ncountlatch import Adf4113NcountLatchWidget
+from adf4113refcountlatch import Adf4113RefcountLatchWidget
+from adf4113funclatch import Adf4113FuncLatchWidget
+from adf4113initlatch import Adf4113InitLatchWidget
 from domain import Domain
 
 
@@ -27,16 +27,16 @@ class MainWindow(QMainWindow):
         self._domain = Domain(parent=self)
 
         # create latch widgets
-        self._ui.ncounterLatchWidget = Adf3114NcountLatchWidget(parent=self)
+        self._ui.ncounterLatchWidget = Adf4113NcountLatchWidget(parent=self)
         self._ui.gridLatch.addWidget(self._ui.ncounterLatchWidget, 1, 2)
 
-        self._ui.rcounterLatchWidget = Adf3114RefcountLatchWidget(parent=self)
+        self._ui.rcounterLatchWidget = Adf4113RefcountLatchWidget(parent=self)
         self._ui.gridLatch.addWidget(self._ui.rcounterLatchWidget, 0, 2)
 
-        self._ui.funcLatchWidget = Adf3114FuncLatchWidget(parent=self)
+        self._ui.funcLatchWidget = Adf4113FuncLatchWidget(parent=self)
         self._ui.gridLatch.addWidget(self._ui.funcLatchWidget, 0, 1, 2, 1)
 
-        self._ui.initLatchWidget = Adf3114InitLatchWidget(parent=self)
+        self._ui.initLatchWidget = Adf4113InitLatchWidget(parent=self)
         self._ui.initLatchWidget.setTitle('Init latch')
         self._ui.gridLatch.addWidget(self._ui.initLatchWidget, 0, 0, 2, 1)
 

@@ -1,7 +1,7 @@
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from mytools.mapmodel import MapModel
-from adf3114registerbase import *
+from adf4113registerbase import *
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
 from spinslide import SpinSlide
 
@@ -51,7 +51,7 @@ CP_GAIN_MODE = {
 # xx00_0000_0000_0000_0000_0000   --   reserved
 
 
-class Adf3114NcountLatch(Adf3114RegisterBase):
+class Adf4113NcountLatch(Adf4113RegisterBase):
 
     cp_gain_mode_labels = {
         0: ('Setting 1 perm', 'Charge pump current setting 1 is permanently used.'),
@@ -102,7 +102,7 @@ class Adf3114NcountLatch(Adf3114RegisterBase):
         self.set_bit_pattern(code, CP_GAIN_BITS, CP_GAIN_MODE)
 
 
-class Adf3114NcountLatchWidget(QGroupBox):
+class Adf4113NcountLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
 
@@ -122,7 +122,7 @@ class Adf3114NcountLatchWidget(QGroupBox):
         self._layout.addRow('B counter', self._slideBcount)
         self._layout.addRow('Charge pump gain', self._comboCpGain)
 
-        self._latch = Adf3114NcountLatch()
+        self._latch = Adf4113NcountLatch()
         self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
 
         self._slideAcount.valueChanged.connect(self.updateBitmap)

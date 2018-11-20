@@ -1,6 +1,6 @@
-from adf3114registerbase import *
+from adf4113registerbase import *
 
-from adf3114funclatch import Adf3114FuncLatch, Adf3114FuncLatchWidget
+from adf4113funclatch import Adf4113FuncLatch, Adf4113FuncLatchWidget
 
 # map latch bits onto register bits
 P2, P1, PD2, CPI6, CPI5, CPI4, CPI3, CPI2, CPI1, TC4, TC3, TC2, TC1, F5, F4, F3, F2, M3, M2, M1, PD1, F1, C2, C1 = \
@@ -175,7 +175,7 @@ PRESCALER_VALUE = {
 }
 
 
-class Adf3114InitLatch(Adf3114FuncLatch):
+class Adf3114InitLatch(Adf4113FuncLatch):
 
     def __init__(self, bits=0):
         super().__init__(bits=bits)
@@ -183,7 +183,7 @@ class Adf3114InitLatch(Adf3114FuncLatch):
         self.set_bits(CONTROL_BITS)
 
 
-class Adf3114InitLatchWidget(Adf3114FuncLatchWidget):
+class Adf4113InitLatchWidget(Adf4113FuncLatchWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

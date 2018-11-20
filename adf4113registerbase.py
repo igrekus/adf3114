@@ -34,7 +34,7 @@ C1 = DB0
 C2 = DB1
 
 
-class Adf3114RegisterBase:
+class Adf4113RegisterBase:
 
     def __init__(self, bits=0):
         self._bits = bits

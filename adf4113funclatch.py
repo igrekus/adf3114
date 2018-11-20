@@ -1,6 +1,6 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
-from adf3114registerbase import *
+from adf4113registerbase import *
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
 
 from mytools.mapmodel import MapModel
@@ -178,7 +178,7 @@ PRESCALER_VALUE = {
 }
 
 
-class Adf3114FuncLatch(Adf3114RegisterBase):
+class Adf4113FuncLatch(Adf4113RegisterBase):
 
     counter_reset_mode_labels = {
         0: ('Normal', 'Normal operation.'),
@@ -363,7 +363,7 @@ class Adf3114FuncLatch(Adf3114RegisterBase):
         self.set_bit_pattern(mode, PRESCALER_VALUE_BITS, PRESCALER_VALUE)
 
 
-class Adf3114FuncLatchWidget(QGroupBox):
+class Adf4113FuncLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
 
@@ -397,7 +397,7 @@ class Adf3114FuncLatchWidget(QGroupBox):
         self._layout.addRow('Current setting 2', self._comboCurrent2)
         self._layout.addRow('Prescaler calue', self._comboPrescaler)
 
-        self._latch = Adf3114FuncLatch()
+        self._latch = Adf4113FuncLatch()
         self._comboCountReset.setModel(MapModel(self, self._latch.counter_reset_mode_labels, sort=False))
         self._comboPowdown.setModel(MapModel(self, self._latch.power_down_mode_labels, sort=False))
         self._comboMuxout.setModel(MapModel(self, self._latch.muxout_mode_labels, sort=False))

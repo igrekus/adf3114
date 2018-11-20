@@ -1,9 +1,9 @@
-from adf3114funclatch import Adf3114FuncLatch
+from adf4113funclatch import Adf4113FuncLatch
 from pyexpect import expect
 
 
 def test_creation():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
 
     expect(reg.hex).to_equal('000002')
     expect(reg.bin).to_equal('000000000000000000000010')
@@ -11,7 +11,7 @@ def test_creation():
 
 
 def test_counter_reset_toggle():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
 
     expect(reg.counter_reset).to_equal(0)
     reg.counter_reset = 1
@@ -23,7 +23,7 @@ def test_counter_reset_toggle():
 
 
 def test_set_power_down_mode():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.power_down_mode = 0
@@ -42,7 +42,7 @@ def test_set_power_down_mode():
 
 
 def test_set_muxout_control():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.muxout_control = 0
@@ -66,7 +66,7 @@ def test_set_muxout_control():
 
 
 def test_pd_polarity():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.phase_detector_polarity = 1
@@ -77,7 +77,7 @@ def test_pd_polarity():
 
 
 def test_charge_pump():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.charge_pump_mode = 1
@@ -88,7 +88,7 @@ def test_charge_pump():
 
 
 def test_fastlock_mode():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.fastlock_mode = 2
@@ -102,7 +102,7 @@ def test_fastlock_mode():
 
 
 def test_timer_counter_mode():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.timer_counter_mode = 15
@@ -122,7 +122,7 @@ def test_timer_counter_mode():
 
 
 def test_current_setting_1():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.current_setting_1 = 7
@@ -136,7 +136,7 @@ def test_current_setting_1():
 
 
 def test_current_setting_2():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.current_setting_2 = 7
@@ -150,7 +150,7 @@ def test_current_setting_2():
 
 
 def test_prescaler_value():
-    reg = Adf3114FuncLatch()
+    reg = Adf4113FuncLatch()
     expect(reg.bin).to_equal('000000000000000000000010')
 
     reg.prescale_value = 3

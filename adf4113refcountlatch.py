@@ -1,6 +1,6 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
-from adf3114registerbase import *
+from adf4113registerbase import *
 from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
 
 from mytools.mapmodel import MapModel
@@ -70,7 +70,7 @@ SYNC_MODE = {
 # x000_0000_0000_0000_0000_0000   --   reserved
 
 
-class Adf3114RefcountLatch(Adf3114RegisterBase):
+class Adf4113RefcountLatch(Adf4113RegisterBase):
 
     antibacklash_pulse_width_labels = {
         0: '3.0 нс #1',
@@ -139,7 +139,7 @@ class Adf3114RefcountLatch(Adf3114RegisterBase):
         self.set_bit_pattern(code, SYNC_MODE_BITS, SYNC_MODE)
 
 
-class Adf3114RefcountLatchWidget(QGroupBox):
+class Adf4113RefcountLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
 
@@ -161,7 +161,7 @@ class Adf3114RefcountLatchWidget(QGroupBox):
         self._layout.addRow('Lock detection precision', self._comboLockDetectPrec)
         self._layout.addRow('Prescaler sync', self._comboSync)
 
-        self._latch = Adf3114RefcountLatch()
+        self._latch = Adf4113RefcountLatch()
         self._comboAntibacklash.setModel(MapModel(self, self._latch.antibacklash_pulse_width_labels, sort=False))
         self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
         self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))

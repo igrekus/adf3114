@@ -1,9 +1,9 @@
-from adf3114ncountlatch import Adf3114NcountLatch
+from adf4113ncountlatch import Adf4113NcountLatch
 from pyexpect import expect
 
 
 def test_creation():
-    reg = Adf3114NcountLatch()
+    reg = Adf4113NcountLatch()
 
     expect(reg.hex).to_equal('000001')
     expect(reg.bin).to_equal('000000000000000000000001')
@@ -11,7 +11,7 @@ def test_creation():
 
 
 def test_a_counter():
-    reg = Adf3114NcountLatch()
+    reg = Adf4113NcountLatch()
     expect(reg.bin).to_equal('000000000000000000000001')
 
     reg.a_counter = 10
@@ -26,7 +26,7 @@ def test_a_counter():
 
 
 def test_b_counter():
-    reg = Adf3114NcountLatch()
+    reg = Adf4113NcountLatch()
     expect(reg.bin).to_equal('000000000000000000000001')
 
     reg.b_counter = 10
@@ -41,7 +41,7 @@ def test_b_counter():
 
 
 def test_lock_detect_precision():
-    reg = Adf3114NcountLatch()
+    reg = Adf4113NcountLatch()
     expect(reg.bin).to_equal('000000000000000000000001')
 
     reg.cp_gain = 3
