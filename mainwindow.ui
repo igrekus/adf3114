@@ -53,12 +53,18 @@
         <property name="text">
          <string>Hex</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="lblCommand">
         <property name="text">
-         <string>Команда</string>
+         <string>Команда (&lt;f.init.func.rcnt.ncnt&gt;)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -288,12 +294,18 @@
         <property name="text">
          <string>Bin</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="lblBit">
         <property name="text">
          <string>Bit</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
