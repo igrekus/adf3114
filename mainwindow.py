@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
         if not self._domain.connectProgr():
             QMessageBox.warning(self, 'Ошибка',
                                 'Не найден программатор, проверьте подкючение.')
-
+            return
         self.modeConnected()
 
     @pyqtSlot()
