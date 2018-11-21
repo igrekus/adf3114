@@ -40,28 +40,21 @@ class MainWindow(QMainWindow):
         self._ui.initLatchWidget.setTitle('Init latch')
         self._ui.gridLatch.addWidget(self._ui.initLatchWidget, 0, 0, 2, 1)
 
-        self._bitGroup = QButtonGroup(self)
-        self._bitGroup.setExclusive(False)
-        for index, box in enumerate((getattr(self._ui, f'cbox{index:02d}') for index in range(24))):
-            self._bitGroup.addButton(box, index)
-
         # create models
         self.initDialog()
 
         # self.size()
 
     def setupUiSignals(self):
-        self._ui.ncounterLatchWidget.bitmapChanged.connect(self.updateNcounterInput)
-        self._ui.rcounterLatchWidget.bitmapChanged.connect(self.updateRcounterInput)
-        self._ui.funcLatchWidget.bitmapChanged.connect(self.updateFuncInput)
-        self._ui.initLatchWidget.bitmapChanged.connect(self.updateInitInput)
+        self._ui.ncounterLatchWidget.bitmapChanged.connect(self._buildCommand)
+        self._ui.rcounterLatchWidget.bitmapChanged.connect(self._buildCommand)
+        self._ui.funcLatchWidget.bitmapChanged.connect(self._buildCommand)
+        self._ui.initLatchWidget.bitmapChanged.connect(self._buildCommand)
 
-        self._ui.ncounterLatchWidget.toggled.connect(self.onLatchChecked)
-        self._ui.rcounterLatchWidget.toggled.connect(self.onLatchChecked)
-        self._ui.funcLatchWidget.toggled.connect(self.onLatchChecked)
-        self._ui.initLatchWidget.toggled.connect(self.onLatchChecked)
-
-        self._bitGroup.buttonToggled[int, bool].connect(self.on_bitGroup_buttonToggled)
+        self._ui.ncounterLatchWidget.toggled.connect(self._buildCommand)
+        self._ui.rcounterLatchWidget.toggled.connect(self._buildCommand)
+        self._ui.funcLatchWidget.toggled.connect(self._buildCommand)
+        self._ui.initLatchWidget.toggled.connect(self._buildCommand)
 
     def setupModels(self):
         pass
@@ -70,9 +63,9 @@ class MainWindow(QMainWindow):
         self.setupModels()
         self.setupUiSignals()
 
-        self.modeDisconnected()
+        self._modeDisconnected()
 
-    def modeDisconnected(self):
+    def _modeDisconnected(self):
         self._ui.btnConnect.setVisible(True)
         self._ui.btnDisconnect.setVisible(False)
         self._ui.btnWrite.setEnabled(False)
@@ -87,7 +80,7 @@ class MainWindow(QMainWindow):
         # self._ui.editCommand.setEnabled(False)
         # self.setBitGroupEnabled(False)
 
-    def modeConnected(self):
+    def _modeConnected(self):
         self._ui.btnConnect.setVisible(False)
         self._ui.btnDisconnect.setVisible(True)
         self._ui.btnWrite.setEnabled(True)
@@ -102,89 +95,21 @@ class MainWindow(QMainWindow):
         # self._ui.editCommand.setEnabled(True)
         # self.setBitGroupEnabled(True)
 
-    def setBitGroupEnabled(self, state: bool):
-        for box in self._bitGroup.buttons():
-            box.setEnabled(state)
-
     @pyqtSlot()
     def on_btnConnect_clicked(self):
         if not self._domain.connectProgr():
             QMessageBox.warning(self, 'Ошибка',
                                 'Не найден программатор, проверьте подкючение.')
             return
-        self.modeConnected()
+        self._modeConnected()
 
     @pyqtSlot()
     def on_btnDisconnect_clicked(self):
         self._domain.disconnectProgr()
 
-        self.modeDisconnected()
+        self._modeDisconnected()
 
     @pyqtSlot()
-    def on_btnWrite_clicked(self):
-        self._domain.send(self._ui.editCommand.text())
-
-    @pyqtSlot()
-    def updateNcounterInput(self):
-        self._updateRegisterInput(self._ui.ncounterLatchWidget.latch)
-
-    @pyqtSlot()
-    def updateRcounterInput(self):
-        self._updateRegisterInput(self._ui.rcounterLatchWidget.latch)
-
-    @pyqtSlot()
-    def updateFuncInput(self):
-        self._updateRegisterInput(self._ui.funcLatchWidget.latch)
-
-    @pyqtSlot()
-    def updateInitInput(self):
-        self._updateRegisterInput(self._ui.initLatchWidget.latch)
-
-    @pyqtSlot(str)
-    def on_editHex_textChanged(self, text: str):
-        if not text:
-            return
-
-        # self._ui.editCommand.blockSignals(True)
-        # self._ui.editBin.blockSignals(True)
-
-        self._buildCommand()
-        self._ui.editBin.setText(f'{int(text, 16):024b}')
-
-        # self._ui.editBin.blockSignals(False)
-        # self._ui.editCommand.blockSignals(False)
-
-    @pyqtSlot(str)
-    def on_editBin_textChanged(self, text: str):
-        if not text:
-            return
-
-        # self._ui.editHex.blockSignals(True)
-        # self._bitGroup.blockSignals(True)
-
-        self._ui.editHex.setText(f'{int(text, 2):06X}')
-        for box, state in zip(self._bitGroup.buttons(), reversed([bool(int(c)) for c in self._ui.editBin.text()])):
-            box.setChecked(state)
-
-        # self._bitGroup.blockSignals(False)
-        # self._ui.editHex.blockSignals(False)
-
-    @pyqtSlot(int, bool)
-    def on_bitGroup_buttonToggled(self, _):
-        # self._ui.editBin.blockSignals(True)
-
-        self._ui.editBin.setText(''.join(list(reversed([str(int(b.isChecked())) for b in self._bitGroup.buttons()]))))
-
-        # self._ui.editBin.blockSignals(False)
-
-    @pyqtSlot(bool)
-    def onLatchChecked(self, _):
-        self.on_editHex_textChanged(self._ui.editHex.text())
-
-    # helpers
-    def _updateRegisterInput(self, latch):
-        self._ui.editHex.setText(latch.hex)
-
     def _buildCommand(self):
         def get_hex(widget):
             if not widget.isChecked():
