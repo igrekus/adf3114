@@ -119,12 +119,22 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._comboCpGain = QComboBox()
         self._editBin = QLineEdit()
         self._editHex = QLineEdit()
-        self._comboBits = QComboBox()
+        self._tableBits = QTableView()
         self._bitView = QTableView()
 
         self._layout = QFormLayout(parent=self)
 
         self._latch = Adf4113NcountLatch()
+
+        self._bitModel = BitModel(rowSize=8,
+                                  bits=self._latch.bin,
+                                  labels=['_', '_', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
+                                          'B8', 'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1',
+                                          'A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'C2', 'C1'],
+                                  disabled=[True, True, False, False, False, False, False, False,
+                                            False, False, False, False, False, False, False, False,
+                                            False, False, False, False, False, False, True, True],
+                                  parent=self)
 
         self._init()
 
@@ -134,7 +144,7 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._layout.addRow('A counter', self._slideAcount)
         self._layout.addRow('B counter', self._slideBcount)
         self._layout.addRow('Charge pump gain', self._comboCpGain)
-        self._layout.addRow('Bits', self._comboBits)
+        self._layout.addRow('Bits', self._tableBits)
         self._layout.addRow('Bin', self._editBin)
         self._layout.addRow('Hex', self._editHex)
 
@@ -142,37 +152,41 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._editBin.setText(self._latch.bin)
         self._editHex.setText(self._latch.hex)
 
-        self._comboBits.setModel(BitModel(rowSize=8,
-                                          bits=self._latch.bin,
-                                          labels=['_', '_', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
-                                                  'B8', 'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1',
-                                                  'A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'C2', 'C1'],
-                                          disabled=[True, True, False, False, False, False, False, False,
-                                                    False, False, False, False, False, False, False, False,
-                                                    False, False, False, False, False, False, True, True],
-                                          parent=self))
-        self._comboBits.setView(self._bitView)
+        self._tableBits.setModel(self._bitModel)
 
-        self._bitView.horizontalHeader().setVisible(False)
-        self._bitView.verticalHeader().setVisible(False)
-        self._bitView.verticalHeader().setDefaultSectionSize(20)
-        self._bitView.resizeColumnsToContents()
-        self._bitView.setSelectionMode(0)
-        # self._bitView.resizeRowsToContents()
+        self._tableBits.horizontalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setDefaultSectionSize(20)
+        self._tableBits.resizeColumnsToContents()
+        self._tableBits.setSelectionMode(0)
 
     def _setupSignals(self):
         self._slideAcount.valueChanged.connect(self.updateBitmap)
         self._slideBcount.valueChanged.connect(self.updateBitmap)
         self._comboCpGain.currentIndexChanged.connect(self.updateBitmap)
+        self._bitModel.bitChanged.connect(self.onBitChanged)
+
+    def updateDisplay(self):
+        self._editBin.setText(self._latch.bin)
+        self._editHex.setText(self._latch.hex)
+
+        self._bitModel.update(self._latch.bin)
+
+        self.bitmapChanged.emit()
 
     @pyqtSlot(int)
     def updateBitmap(self, _):
         self._latch.a_counter = self._slideAcount.value()
         self._latch.b_counter = self._slideBcount.value()
         self._latch.cp_gain = self._comboCpGain.currentData(MapModel.RoleNodeId)
-        self._editBin.setText(self._latch.bin)
-        self._editHex.setText(self._latch.hex)
-        self.bitmapChanged.emit()
+
+        self.updateDisplay()
+
+    @pyqtSlot(int, int)
+    def onBitChanged(self, row, col):
+        self.latch.toggle_nth_bit(row * 8 + 7 - col)
+
+        self.updateDisplay()
 
     @property
     def latch(self):

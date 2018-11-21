@@ -1,14 +1,20 @@
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, pyqtSlot
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, pyqtSignal
 
 
 class BitModel(QAbstractTableModel):
+
+    bitChanged = pyqtSignal(int, int)
 
     def __init__(self, rowSize=8, bits='', labels=None, disabled=None, parent=None):
         super().__init__(parent)
 
         self._data = list()
 
-        self._init(rowSize, bits, labels, disabled)
+        self._rowSize = rowSize
+        self._labels = labels
+        self._disabled = disabled
+
+        self._init(self._rowSize, bits, self._labels, self._disabled)
         # TODO pad missing cols if needed
 
     def clear(self):
@@ -18,6 +24,7 @@ class BitModel(QAbstractTableModel):
 
     def _init(self, rowSize, bits, labels, disabled):
         self.beginResetModel()
+        self._data.clear()
         row = list()
         for char, label, dis in zip(bits, labels, disabled):
             row.append((bool(int(char)), label, dis))
@@ -27,6 +34,9 @@ class BitModel(QAbstractTableModel):
         self._data = list(reversed(self._data))
         self.endResetModel()
 
+    def update(self, bits: str):
+        self._init(self._rowSize, bits, self._labels, self._disabled)
+
     def rowCount(self, parent=None, *args, **kwargs):
         if parent.isValid():
             return 0
@@ -34,6 +44,10 @@ class BitModel(QAbstractTableModel):
 
     def columnCount(self, parent=None, *args, **kwargs):
         return len(self._data[0])
+
+    def setData(self, index, value, role=None):
+        self.bitChanged.emit(index.row(), index.column())
+        return True
 
     def data(self, index, role=None):
         if not index.isValid():
@@ -56,10 +70,8 @@ class BitModel(QAbstractTableModel):
         f = super().flags(index)
         row = index.row()
         col = index.column()
-        if self._data[row][col][2]:
-            f &= Qt.ItemIsUserCheckable
+        if not self._data[row][col][2]:
+            f = f | Qt.ItemIsUserCheckable # | Qt.ItemIsEnabled
+        else:
+            f ^= Qt.ItemIsEnabled
         return f
-
-    @pyqtSlot(int)
-    def updateModel(self, chip):
-        self._init(chip)
