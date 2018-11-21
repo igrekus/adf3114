@@ -1,4 +1,4 @@
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QStringListModel
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from bitmodel import BitModel
 from mytools.mapmodel import MapModel
@@ -142,16 +142,22 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._editBin.setText(self._latch.bin)
         self._editHex.setText(self._latch.hex)
 
-        self._comboBits.setModel(BitModel(rowSize=8, bits=self._latch.bin,
+        self._comboBits.setModel(BitModel(rowSize=8,
+                                          bits=self._latch.bin,
                                           labels=['_', '_', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
                                                   'B8', 'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1',
-                                                  'A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'C2', 'C1'], parent=self))
+                                                  'A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'C2', 'C1'],
+                                          disabled=[True, True, False, False, False, False, False, False,
+                                                    False, False, False, False, False, False, False, False,
+                                                    False, False, False, False, False, False, True, True],
+                                          parent=self))
         self._comboBits.setView(self._bitView)
 
         self._bitView.horizontalHeader().setVisible(False)
         self._bitView.verticalHeader().setVisible(False)
         self._bitView.verticalHeader().setDefaultSectionSize(20)
         self._bitView.resizeColumnsToContents()
+        self._bitView.setSelectionMode(0)
         # self._bitView.resizeRowsToContents()
 
     def _setupSignals(self):
