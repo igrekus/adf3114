@@ -111,6 +111,14 @@ class MainWindow(QMainWindow):
         self._modeDisconnected()
 
     @pyqtSlot()
+    def on_btnWrite_clicked(self):
+        try:
+            if self._domain.connected:
+                self._domain.send(self._ui.editCommand.text())
+        except Exception as ex:
+            print(ex)
+
+    @pyqtSlot()
     def _buildCommand(self):
         def get_hex(widget):
             if not widget.isChecked():
