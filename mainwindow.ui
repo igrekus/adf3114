@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1208</width>
-    <height>177</height>
+    <width>1108</width>
+    <height>123</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="2">
+      <item row="1" column="3">
        <widget class="QPushButton" name="btnWrite">
         <property name="text">
          <string>ЗАПИСЬ</string>
@@ -65,7 +65,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="1" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QPushButton" name="btnConnect">
@@ -92,7 +92,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1208</width>
+     <width>1108</width>
      <height>21</height>
     </rect>
    </property>
