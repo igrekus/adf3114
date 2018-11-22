@@ -66,3 +66,6 @@ class Domain(QObject):
         except Exception as ex:
             print(ex)
 
+    @property
+    def connected(self):
+        return self._progr._port.is_open
