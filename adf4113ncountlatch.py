@@ -128,7 +128,7 @@ class Adf4113NcountLatchWidget(QGroupBox):
 
         self._bitModel = BitModel(rowSize=8,
                                   bits=self._latch.bin,
-                                  labels=['_', '_', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
+                                  labels=['X', 'X', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
                                           'B8', 'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1',
                                           'A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'C2', 'C1'],
                                   disabled=[True, True, False, False, False, False, False, False,
