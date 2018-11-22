@@ -139,8 +139,6 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._init()
 
     def _init(self):
-        self._setupSignals()
-
         self._layout.addRow('A counter', self._slideAcount)
         self._layout.addRow('B counter', self._slideBcount)
         self._layout.addRow('Charge pump gain', self._comboCpGain)
@@ -159,6 +157,8 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._tableBits.verticalHeader().setDefaultSectionSize(20)
         self._tableBits.resizeColumnsToContents()
         self._tableBits.setSelectionMode(0)
+
+        self._setupSignals()
 
     def _setupSignals(self):
         self._slideAcount.valueChanged.connect(self.updateBitmap)
