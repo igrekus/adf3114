@@ -117,15 +117,14 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._slideAcount = SpinSlide(0, 63, 0, '')
         self._slideBcount = SpinSlide(3, 8191, 1, '')
         self._comboCpGain = QComboBox()
-        self._editBin = QLineEdit()
-        self._editHex = QLineEdit()
-        self._tableBits = QTableView()
-        self._bitView = QTableView()
 
         self._layout = QFormLayout(parent=self)
 
         self._latch = Adf4113NcountLatch()
 
+        self._editBin = QLineEdit()
+        self._editHex = QLineEdit()
+        self._tableBits = QTableView()
         self._bitModel = BitModel(rowSize=8,
                                   bits=self._latch.bin,
                                   labels=['X', 'X', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
