@@ -101,6 +101,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, 'Ошибка',
                                 'Не найден программатор, проверьте подкючение.')
             return
+        print('connected to SPI')
         self._modeConnected()
 
     @pyqtSlot()
