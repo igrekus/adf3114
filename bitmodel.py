@@ -61,7 +61,7 @@ class BitModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             return QVariant(self._data[row][col][1])
 
-        if role == Qt.CheckStateRole:
+        elif role == Qt.CheckStateRole:
             return QVariant(self._data[row][col][0] * 2)
 
         return QVariant()
