@@ -3,7 +3,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from bitmodel import BitModel
 from mytools.mapmodel import MapModel
 from adf4113registerbase import *
-from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QLineEdit, QTableView
+from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QLineEdit, QTableView, QVBoxLayout, QLabel
 from spinslide import SpinSlide
 
 # map latch bits onto register bits
@@ -118,12 +118,13 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._slideBcount = SpinSlide(3, 8191, 1, '')
         self._comboCpGain = QComboBox()
 
-        self._layout = QFormLayout(parent=self)
+        self._containerLayout = QVBoxLayout()
+        self._formLayout = QFormLayout()
+        self._bitLayout = QVBoxLayout()
 
         self._latch = Adf4113NcountLatch()
 
-        self._editBin = QLineEdit()
-        self._editHex = QLineEdit()
+        self._labelReg = QLabel()
         self._tableBits = QTableView()
         self._bitModel = BitModel(rowSize=8,
                                   bits=self._latch.bin,
@@ -138,16 +139,20 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._init()
 
     def _init(self):
-        self._layout.addRow('A counter', self._slideAcount)
-        self._layout.addRow('B counter', self._slideBcount)
-        self._layout.addRow('Charge pump gain', self._comboCpGain)
-        self._layout.addRow('Bits', self._tableBits)
-        self._layout.addRow('Bin', self._editBin)
-        self._layout.addRow('Hex', self._editHex)
+        self._containerLayout.addLayout(self._formLayout)
+        self._containerLayout.addLayout(self._bitLayout)
+
+        self._formLayout.addRow('A counter', self._slideAcount)
+        self._formLayout.addRow('B counter', self._slideBcount)
+        self._formLayout.addRow('Charge pump gain', self._comboCpGain)
+
+        self._bitLayout.addWidget(self._tableBits)
+        self._bitLayout.addWidget(self._labelReg)
+
+        self.setLayout(self._containerLayout)
 
         self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
-        self._editBin.setText(self._latch.bin)
-        self._editHex.setText(self._latch.hex)
+        self._labelReg.setText(f'Hex={self._latch.hex}  Bin={self._latch.bin}')
 
         self._tableBits.setModel(self._bitModel)
 
@@ -166,8 +171,7 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._bitModel.bitChanged.connect(self.onBitChanged)
 
     def updateDisplay(self):
-        self._editBin.setText(self._latch.bin)
-        self._editHex.setText(self._latch.hex)
+        self._labelReg.setText(f'Hex={self._latch.hex}   Bin={self._latch.bin}')
 
         self._bitModel.update(self._latch.bin)
 
