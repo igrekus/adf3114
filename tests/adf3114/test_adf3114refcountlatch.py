@@ -1,9 +1,9 @@
-from adf3114refcountlatch import Adf3114RefcountLatch
+from adf4113refcountlatch import Adf4113RefcountLatch
 from pyexpect import expect
 
 
 def test_creation():
-    reg = Adf3114RefcountLatch()
+    reg = Adf4113RefcountLatch()
 
     expect(reg.hex).to_equal('000000')
     expect(reg.bin).to_equal('000000000000000000000000')
@@ -11,7 +11,7 @@ def test_creation():
 
 
 def test_antibacklashe_pulse_width():
-    reg = Adf3114RefcountLatch()
+    reg = Adf4113RefcountLatch()
     expect(reg.bin).to_equal('000000000000000000000000')
 
     reg.antibacklash_pulse_width = 3
@@ -25,7 +25,7 @@ def test_antibacklashe_pulse_width():
 
 
 def test_reference_counter():
-    reg = Adf3114RefcountLatch()
+    reg = Adf4113RefcountLatch()
     expect(reg.bin).to_equal('000000000000000000000000')
 
     reg.reference_counter = 100
@@ -40,7 +40,7 @@ def test_reference_counter():
 
 
 def test_lock_detect_precision():
-    reg = Adf3114RefcountLatch()
+    reg = Adf4113RefcountLatch()
     expect(reg.bin).to_equal('000000000000000000000000')
 
     reg.lock_detect_precision = 1
@@ -50,7 +50,7 @@ def test_lock_detect_precision():
 
 
 def test_sync_mode():
-    reg = Adf3114RefcountLatch()
+    reg = Adf4113RefcountLatch()
     expect(reg.bin).to_equal('000000000000000000000000')
 
     reg.sync_mode = 3

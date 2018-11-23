@@ -1,8 +1,9 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
-from adf3114registerbase import *
-from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
+from adf4113registerbase import *
+from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QLineEdit, QTableView, QVBoxLayout, QLabel
 
+from bitmodel import BitModel
 from mytools.mapmodel import MapModel
 from spinslide import SpinSlide
 
@@ -70,7 +71,7 @@ SYNC_MODE = {
 # x000_0000_0000_0000_0000_0000   --   reserved
 
 
-class Adf3114RefcountLatch(Adf3114RegisterBase):
+class Adf4113RefcountLatch(Adf4113RegisterBase):
 
     antibacklash_pulse_width_labels = {
         0: '3.0 нс #1',
@@ -139,14 +140,14 @@ class Adf3114RefcountLatch(Adf3114RegisterBase):
         self.set_bit_pattern(code, SYNC_MODE_BITS, SYNC_MODE)
 
 
-class Adf3114RefcountLatchWidget(QGroupBox):
+class Adf4113RefcountLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
+    title = 'Reference count latch'
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setTitle('Reference count latch')
         self.setCheckable(True)
         self.setChecked(True)
 
@@ -155,22 +156,67 @@ class Adf3114RefcountLatchWidget(QGroupBox):
         self._comboLockDetectPrec = QComboBox()
         self._comboSync = QComboBox()
 
-        self._layout = QFormLayout(parent=self)
-        self._layout.addRow('Reference counter', self._slideRefcount)
-        self._layout.addRow('Anti-backlash pulse width', self._comboAntibacklash)
-        self._layout.addRow('Lock detection precision', self._comboLockDetectPrec)
-        self._layout.addRow('Prescaler sync', self._comboSync)
+        self._containerLayout = QVBoxLayout()
+        self._formLayout = QFormLayout()
+        self._bitLayout = QVBoxLayout()
 
-        self._latch = Adf3114RefcountLatch()
+        self._latch = Adf4113RefcountLatch()
+
+        self._tableBits = QTableView()
+        self._bitModel = BitModel(rowSize=8,
+                                  bits=self._latch.bin,
+                                  labels=['X', 'DLY', 'SYNC', 'LDP', 'T2', 'T1', 'ABP2', 'ABP1',
+                                          'R14', 'R13', 'R12', 'R11', 'R10', 'R9', 'R8', 'R7',
+                                          'R6', 'R5', 'R4', 'R3', 'R2', 'R1', 'C2', 'C1'],
+                                  disabled=[True, False, False, False, True, True, False, False,
+                                            False, False, False, False, False, False, False, False,
+                                            False, False, False, False, False, False, True, True],
+                                  parent=self)
+
+        self._init()
+
+    def _init(self):
+        self._containerLayout.addLayout(self._formLayout)
+        self._containerLayout.addLayout(self._bitLayout)
+        self.setLayout(self._containerLayout)
+
+        self._formLayout.addRow('Reference counter', self._slideRefcount)
+        self._formLayout.addRow('Anti-backlash pulse width', self._comboAntibacklash)
+        self._formLayout.addRow('Lock detection precision', self._comboLockDetectPrec)
+        self._formLayout.addRow('Prescaler sync', self._comboSync)
+
+        self._bitLayout.addWidget(self._tableBits)
+
         self._comboAntibacklash.setModel(MapModel(self, self._latch.antibacklash_pulse_width_labels, sort=False))
         self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
         self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
         self._comboSync.setModel(MapModel(self, self._latch.precaler_sync_mode, sort=False))
 
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
+
+        self._tableBits.setModel(self._bitModel)
+
+        self._tableBits.horizontalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setDefaultSectionSize(20)
+        self._tableBits.resizeColumnsToContents()
+        self._tableBits.setSelectionMode(0)
+
+        self._setupSignals()
+
+    def _setupSignals(self):
         self._slideRefcount.valueChanged.connect(self.updateBitmap)
         self._comboAntibacklash.currentIndexChanged.connect(self.updateBitmap)
         self._comboLockDetectPrec.currentIndexChanged.connect(self.updateBitmap)
         self._comboSync.currentIndexChanged.connect(self.updateBitmap)
+
+        self._bitModel.bitChanged.connect(self.onBitChanged)
+
+    def updateDisplay(self):
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
+        self._bitModel.update(self._latch.bin)
+
+        self.bitmapChanged.emit()
 
     @pyqtSlot(int)
     def updateBitmap(self, _):
@@ -179,7 +225,13 @@ class Adf3114RefcountLatchWidget(QGroupBox):
         self._latch.lock_detect_precision = self._comboLockDetectPrec.currentData(MapModel.RoleNodeId)
         self._latch.sync_mode = self._comboSync.currentData(MapModel.RoleNodeId)
 
-        self.bitmapChanged.emit()
+        self.updateDisplay()
+
+    @pyqtSlot(int, int)
+    def onBitChanged(self, row, col):
+        self.latch.toggle_nth_bit(row * 8 + 7 - col)
+
+        self.updateDisplay()
 
     @property
     def latch(self):

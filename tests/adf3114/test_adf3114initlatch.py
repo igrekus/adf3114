@@ -1,4 +1,4 @@
-from adf3114initlatch import Adf3114InitLatch
+from adf4113initlatch import Adf3114InitLatch
 from pyexpect import expect
 
 

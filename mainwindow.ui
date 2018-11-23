@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>727</width>
-    <height>454</height>
+    <width>1108</width>
+    <height>123</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Программатор для ADF3114</string>
+   <string>Программатор для ADF4113</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_5">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>8</number>
     </property>
@@ -35,34 +35,14 @@
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="3">
+       <widget class="QPushButton" name="btnWrite">
+        <property name="text">
+         <string>ЗАПИСЬ</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="editHex">
-        <property name="inputMask">
-         <string>hhhhhh</string>
-        </property>
-        <property name="text">
-         <string>000000</string>
-        </property>
-        <property name="maxLength">
-         <number>6</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="lblHex">
-        <property name="text">
-         <string>Hex</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lblCommand">
-        <property name="text">
-         <string>Команда</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
        <widget class="QLineEdit" name="editCommand">
         <property name="enabled">
          <bool>true</bool>
@@ -71,38 +51,21 @@
          <string>&lt;n&gt;</string>
         </property>
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="btnWrite">
+      <item row="1" column="0">
+       <widget class="QLabel" name="lblCommand">
         <property name="text">
-         <string>ЗАПИСЬ</string>
+         <string>Команда (&lt;f.init.func.rcnt.ncnt&gt;)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="lblBin">
-        <property name="text">
-         <string>Bin</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="editBin">
-        <property name="inputMask">
-         <string>bbbbbbbbbbbbbbbbbbbbbbbb</string>
-        </property>
-        <property name="text">
-         <string>000000000000000000000000</string>
-        </property>
-        <property name="maxLength">
-         <number>24</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
+      <item row="1" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QPushButton" name="btnConnect">
@@ -129,7 +92,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>727</width>
+     <width>1108</width>
      <height>21</height>
     </rect>
    </property>

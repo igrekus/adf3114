@@ -3,11 +3,11 @@ import serial
 
 from time import sleep
 from PyQt5.QtCore import QObject, pyqtSignal
-from arduino.arduinostm32 import ArduinoSTM32
-from arduino.arduinostm32mock import ArduinoSTM32Mock
+from arduino.arduinospi import ArduinoSpi
+from arduino.arduinospimock import ArduinoSpiMock
 
 
-mock_enabled = False
+mock_enabled = True
 
 
 class Domain(QObject):
@@ -49,12 +49,12 @@ class Domain(QObject):
         if not mock_enabled:
             port = find_arduino()
             if port:
-                self._progr = ArduinoSTM32(port=port, baudrate=9600, parity=serial.PARITY_NONE, bytesize=8,
-                                           stopbits=serial.STOPBITS_ONE, timeout=1)
+                self._progr = ArduinoSpi(port=port, baudrate=9600, parity=serial.PARITY_NONE, bytesize=8,
+                                         stopbits=serial.STOPBITS_ONE, timeout=1)
 
         else:
-            self._progr = ArduinoSTM32Mock(port=(find_arduino()), baudrate=9600, parity=serial.PARITY_NONE, bytesize=8,
-                                           stopbits=serial.STOPBITS_ONE, timeout=1)
+            self._progr = ArduinoSpiMock(port=(find_arduino()), baudrate=9600, parity=serial.PARITY_NONE, bytesize=8,
+                                         stopbits=serial.STOPBITS_ONE, timeout=1)
         return bool(self._progr)
 
     def disconnectProgr(self):
@@ -66,3 +66,6 @@ class Domain(QObject):
         except Exception as ex:
             print(ex)
 
+    @property
+    def connected(self):
+        return self._progr._port.is_open
