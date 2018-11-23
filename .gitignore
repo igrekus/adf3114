@@ -173,3 +173,6 @@ data2/
 ref/
 
 *.xlsx
+arduino/
+
+mytools/

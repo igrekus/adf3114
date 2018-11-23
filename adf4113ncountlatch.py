@@ -1,8 +1,9 @@
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
+from bitmodel import BitModel
 from mytools.mapmodel import MapModel
 from adf4113registerbase import *
-from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
+from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QLineEdit, QTableView, QVBoxLayout, QLabel
 from spinslide import SpinSlide
 
 # map latch bits onto register bits
@@ -105,11 +106,11 @@ class Adf4113NcountLatch(Adf4113RegisterBase):
 class Adf4113NcountLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
+    title = 'AB count latch'
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setTitle('AB count latch')
         self.setCheckable(True)
         self.setChecked(True)
 
@@ -117,17 +118,62 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._slideBcount = SpinSlide(3, 8191, 1, '')
         self._comboCpGain = QComboBox()
 
-        self._layout = QFormLayout(parent=self)
-        self._layout.addRow('A counter', self._slideAcount)
-        self._layout.addRow('B counter', self._slideBcount)
-        self._layout.addRow('Charge pump gain', self._comboCpGain)
+        self._containerLayout = QVBoxLayout()
+        self._formLayout = QFormLayout()
+        self._bitLayout = QVBoxLayout()
 
         self._latch = Adf4113NcountLatch()
-        self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
 
+        self._tableBits = QTableView()
+        self._bitModel = BitModel(rowSize=8,
+                                  bits=self._latch.bin,
+                                  labels=['X', 'X', 'G1', 'B13', 'B12', 'B11', 'B10', 'B9',
+                                          'B8', 'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1',
+                                          'A6', 'A5', 'A4', 'A3', 'A2', 'A1', 'C2', 'C1'],
+                                  disabled=[True, True, False, False, False, False, False, False,
+                                            False, False, False, False, False, False, False, False,
+                                            False, False, False, False, False, False, True, True],
+                                  parent=self)
+
+        self._init()
+
+    def _init(self):
+        self._containerLayout.addLayout(self._formLayout)
+        self._containerLayout.addLayout(self._bitLayout)
+
+        self._formLayout.addRow('A counter', self._slideAcount)
+        self._formLayout.addRow('B counter', self._slideBcount)
+        self._formLayout.addRow('Charge pump gain', self._comboCpGain)
+
+        self._bitLayout.addWidget(self._tableBits)
+
+        self.setLayout(self._containerLayout)
+
+        self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
+
+        self._tableBits.setModel(self._bitModel)
+
+        self._tableBits.horizontalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setDefaultSectionSize(20)
+        self._tableBits.resizeColumnsToContents()
+        self._tableBits.setSelectionMode(0)
+
+        self._setupSignals()
+
+    def _setupSignals(self):
         self._slideAcount.valueChanged.connect(self.updateBitmap)
         self._slideBcount.valueChanged.connect(self.updateBitmap)
         self._comboCpGain.currentIndexChanged.connect(self.updateBitmap)
+        self._bitModel.bitChanged.connect(self.onBitChanged)
+
+    def updateDisplay(self):
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
+
+        self._bitModel.update(self._latch.bin)
+
+        self.bitmapChanged.emit()
 
     @pyqtSlot(int)
     def updateBitmap(self, _):
@@ -135,7 +181,13 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._latch.b_counter = self._slideBcount.value()
         self._latch.cp_gain = self._comboCpGain.currentData(MapModel.RoleNodeId)
 
-        self.bitmapChanged.emit()
+        self.updateDisplay()
+
+    @pyqtSlot(int, int)
+    def onBitChanged(self, row, col):
+        self.latch.toggle_nth_bit(row * 8 + 7 - col)
+
+        self.updateDisplay()
 
     @property
     def latch(self):

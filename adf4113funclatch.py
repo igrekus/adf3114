@@ -1,8 +1,9 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
 from adf4113registerbase import *
-from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout
+from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QVBoxLayout, QTableView
 
+from bitmodel import BitModel
 from mytools.mapmodel import MapModel
 
 # map latch bits onto register bits
@@ -366,6 +367,7 @@ class Adf4113FuncLatch(Adf4113RegisterBase):
 class Adf4113FuncLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
+    title = 'Func latch'
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -385,19 +387,43 @@ class Adf4113FuncLatchWidget(QGroupBox):
         self._comboCurrent2 = QComboBox()
         self._comboPrescaler = QComboBox()
 
-        self._layout = QFormLayout(parent=self)
-        self._layout.addRow('Counter reset', self._comboCountReset)
-        self._layout.addRow('Power-down mode', self._comboPowdown)
-        self._layout.addRow('MUXOUT control', self._comboMuxout)
-        self._layout.addRow('Phase detector polarity', self._comboPdPolarity)
-        self._layout.addRow('Charge pump output', self._comboCpOut)
-        self._layout.addRow('Fastlock mode', self._comboFastlock)
-        self._layout.addRow('Timer counter control', self._comboTimer)
-        self._layout.addRow('Current setting 1', self._comboCurrent1)
-        self._layout.addRow('Current setting 2', self._comboCurrent2)
-        self._layout.addRow('Prescaler calue', self._comboPrescaler)
+        self._containerLayout = QVBoxLayout()
+        self._formLayout = QFormLayout()
+        self._bitLayout = QVBoxLayout()
 
         self._latch = Adf4113FuncLatch()
+
+        self._tableBits = QTableView()
+        self._bitModel = BitModel(rowSize=8,
+                                  bits=self._latch.bin,
+                                  labels=['X', 'DLY', 'SYNC', 'LDP', 'T2', 'T1', 'ABP2', 'ABP1',
+                                          'R14', 'R13', 'R12', 'R11', 'R10', 'R9', 'R8', 'R7',
+                                          'R6', 'R5', 'R4', 'R3', 'R2', 'R1', 'C2', 'C1'],
+                                  disabled=[True, False, False, False, True, True, False, False,
+                                            False, False, False, False, False, False, False, False,
+                                            False, False, False, False, False, False, True, True],
+                                  parent=self)
+
+        self._init()
+
+    def _init(self):
+        self._containerLayout.addLayout(self._formLayout)
+        self._containerLayout.addLayout(self._bitLayout)
+        self.setLayout(self._containerLayout)
+
+        self._formLayout.addRow('Counter reset', self._comboCountReset)
+        self._formLayout.addRow('Power-down mode', self._comboPowdown)
+        self._formLayout.addRow('MUXOUT control', self._comboMuxout)
+        self._formLayout.addRow('Phase detector polarity', self._comboPdPolarity)
+        self._formLayout.addRow('Charge pump output', self._comboCpOut)
+        self._formLayout.addRow('Fastlock mode', self._comboFastlock)
+        self._formLayout.addRow('Timer counter control', self._comboTimer)
+        self._formLayout.addRow('Current setting 1', self._comboCurrent1)
+        self._formLayout.addRow('Current setting 2', self._comboCurrent2)
+        self._formLayout.addRow('Prescaler calue', self._comboPrescaler)
+
+        self._bitLayout.addWidget(self._tableBits)
+
         self._comboCountReset.setModel(MapModel(self, self._latch.counter_reset_mode_labels, sort=False))
         self._comboPowdown.setModel(MapModel(self, self._latch.power_down_mode_labels, sort=False))
         self._comboMuxout.setModel(MapModel(self, self._latch.muxout_mode_labels, sort=False))
@@ -409,6 +435,19 @@ class Adf4113FuncLatchWidget(QGroupBox):
         self._comboCurrent2.setModel(MapModel(self, self._latch.current_setting_labels, sort=False))
         self._comboPrescaler.setModel(MapModel(self, self._latch.prescaler_value_labels, sort=False))
 
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
+
+        self._tableBits.setModel(self._bitModel)
+
+        self._tableBits.horizontalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setVisible(False)
+        self._tableBits.verticalHeader().setDefaultSectionSize(20)
+        self._tableBits.resizeColumnsToContents()
+        self._tableBits.setSelectionMode(0)
+
+        self._setupSignals()
+
+    def _setupSignals(self):
         self._comboCountReset.currentIndexChanged.connect(self.updateBitmap)
         self._comboPowdown.currentIndexChanged.connect(self.updateBitmap)
         self._comboMuxout.currentIndexChanged.connect(self.updateBitmap)
@@ -419,6 +458,14 @@ class Adf4113FuncLatchWidget(QGroupBox):
         self._comboCurrent1.currentIndexChanged.connect(self.updateBitmap)
         self._comboCurrent2.currentIndexChanged.connect(self.updateBitmap)
         self._comboPrescaler.currentIndexChanged.connect(self.updateBitmap)
+
+        self._bitModel.bitChanged.connect(self.onBitChanged)
+
+    def updateDisplay(self):
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
+        self._bitModel.update(self._latch.bin)
+
+        self.bitmapChanged.emit()
 
     @pyqtSlot(int)
     def updateBitmap(self, _):
@@ -433,10 +480,14 @@ class Adf4113FuncLatchWidget(QGroupBox):
         self._latch.current_setting_2 = self._comboCurrent2.currentData(MapModel.RoleNodeId)
         self._latch.prescale_value = self._comboPrescaler.currentData(MapModel.RoleNodeId)
 
-        self.bitmapChanged.emit()
+        self.updateDisplay()
+
+    @pyqtSlot(int, int)
+    def onBitChanged(self, row, col):
+        self.latch.toggle_nth_bit(row * 8 + 7 - col)
+
+        self.updateDisplay()
 
     @property
     def latch(self):
         return self._latch
-
-
