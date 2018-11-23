@@ -8,6 +8,9 @@ class BitModel(QAbstractTableModel):
     def __init__(self, rowSize=8, bits='', labels=None, disabled=None, parent=None):
         super().__init__(parent)
 
+        self._font = parent.font()
+        self._font.setPointSize(6)
+
         self._data = list()
 
         self._rowSize = rowSize
@@ -61,8 +64,11 @@ class BitModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             return QVariant(self._data[row][col][1])
 
-        if role == Qt.CheckStateRole:
+        elif role == Qt.CheckStateRole:
             return QVariant(self._data[row][col][0] * 2)
+
+        elif role == Qt.FontRole:
+            return QVariant(self._font)
 
         return QVariant()
 
