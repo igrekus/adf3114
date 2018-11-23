@@ -1,7 +1,7 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
 from adf4113registerbase import *
-from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QLineEdit, QTableView
+from PyQt5.QtWidgets import QGroupBox, QComboBox, QFormLayout, QLineEdit, QTableView, QVBoxLayout, QLabel
 
 from bitmodel import BitModel
 from mytools.mapmodel import MapModel
@@ -147,7 +147,6 @@ class Adf4113RefcountLatchWidget(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setTitle('Reference count latch')
         self.setCheckable(True)
         self.setChecked(True)
 
@@ -156,12 +155,12 @@ class Adf4113RefcountLatchWidget(QGroupBox):
         self._comboLockDetectPrec = QComboBox()
         self._comboSync = QComboBox()
 
-        self._layout = QFormLayout(parent=self)
+        self._containerLayout = QVBoxLayout()
+        self._formLayout = QFormLayout()
+        self._bitLayout = QVBoxLayout()
 
         self._latch = Adf4113RefcountLatch()
 
-        self._editBin = QLineEdit()
-        self._editHex = QLineEdit()
         self._tableBits = QTableView()
         self._bitModel = BitModel(rowSize=8,
                                   bits=self._latch.bin,
@@ -176,21 +175,23 @@ class Adf4113RefcountLatchWidget(QGroupBox):
         self._init()
 
     def _init(self):
-        self._layout.addRow('Reference counter', self._slideRefcount)
-        self._layout.addRow('Anti-backlash pulse width', self._comboAntibacklash)
-        self._layout.addRow('Lock detection precision', self._comboLockDetectPrec)
-        self._layout.addRow('Prescaler sync', self._comboSync)
-        self._layout.addRow('Bits', self._tableBits)
-        self._layout.addRow('Bin', self._editBin)
-        self._layout.addRow('Hex', self._editHex)
+        self._containerLayout.addLayout(self._formLayout)
+        self._containerLayout.addLayout(self._bitLayout)
+        self.setLayout(self._containerLayout)
+
+        self._formLayout.addRow('Reference counter', self._slideRefcount)
+        self._formLayout.addRow('Anti-backlash pulse width', self._comboAntibacklash)
+        self._formLayout.addRow('Lock detection precision', self._comboLockDetectPrec)
+        self._formLayout.addRow('Prescaler sync', self._comboSync)
+
+        self._bitLayout.addWidget(self._tableBits)
 
         self._comboAntibacklash.setModel(MapModel(self, self._latch.antibacklash_pulse_width_labels, sort=False))
         self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
         self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
         self._comboSync.setModel(MapModel(self, self._latch.precaler_sync_mode, sort=False))
 
-        self._editBin.setText(self._latch.bin)
-        self._editHex.setText(self._latch.hex)
+        self.setTitle(f'Reference count latch (h:{self._latch.hex} b:{self._latch.bin})')
 
         self._tableBits.setModel(self._bitModel)
 
@@ -211,9 +212,7 @@ class Adf4113RefcountLatchWidget(QGroupBox):
         self._bitModel.bitChanged.connect(self.onBitChanged)
 
     def updateDisplay(self):
-        self._editBin.setText(self._latch.bin)
-        self._editHex.setText(self._latch.hex)
-
+        self.setTitle(f'Reference count latch (h:{self._latch.hex} b:{self._latch.bin})')
         self._bitModel.update(self._latch.bin)
 
         self.bitmapChanged.emit()
