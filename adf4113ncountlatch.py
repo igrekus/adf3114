@@ -110,7 +110,6 @@ class Adf4113NcountLatchWidget(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setTitle('AB count latch')
         self.setCheckable(True)
         self.setChecked(True)
 
@@ -124,7 +123,6 @@ class Adf4113NcountLatchWidget(QGroupBox):
 
         self._latch = Adf4113NcountLatch()
 
-        self._labelReg = QLabel()
         self._tableBits = QTableView()
         self._bitModel = BitModel(rowSize=8,
                                   bits=self._latch.bin,
@@ -147,12 +145,11 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._formLayout.addRow('Charge pump gain', self._comboCpGain)
 
         self._bitLayout.addWidget(self._tableBits)
-        self._bitLayout.addWidget(self._labelReg)
 
         self.setLayout(self._containerLayout)
 
         self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
-        self._labelReg.setText(f'Hex={self._latch.hex}  Bin={self._latch.bin}')
+        self.setTitle(f'AB count latch (h:{self._latch.hex} b:{self._latch.bin})')
 
         self._tableBits.setModel(self._bitModel)
 
@@ -171,7 +168,7 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._bitModel.bitChanged.connect(self.onBitChanged)
 
     def updateDisplay(self):
-        self._labelReg.setText(f'Hex={self._latch.hex}   Bin={self._latch.bin}')
+        self.setTitle(f'AB count latch (h:{self._latch.hex} b:{self._latch.bin})')
 
         self._bitModel.update(self._latch.bin)
 
