@@ -185,6 +185,8 @@ class Adf3114InitLatch(Adf4113FuncLatch):
 
 class Adf4113InitLatchWidget(Adf4113FuncLatchWidget):
 
+    title = 'Init latch'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

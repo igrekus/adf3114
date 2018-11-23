@@ -143,6 +143,7 @@ class Adf4113RefcountLatch(Adf4113RegisterBase):
 class Adf4113RefcountLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
+    title = 'Reference count latch'
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -191,7 +192,7 @@ class Adf4113RefcountLatchWidget(QGroupBox):
         self._comboLockDetectPrec.setModel(MapModel(self, self._latch.lock_detect_precision_labels, sort=False))
         self._comboSync.setModel(MapModel(self, self._latch.precaler_sync_mode, sort=False))
 
-        self.setTitle(f'Reference count latch (h:{self._latch.hex} b:{self._latch.bin})')
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
 
         self._tableBits.setModel(self._bitModel)
 
@@ -212,7 +213,7 @@ class Adf4113RefcountLatchWidget(QGroupBox):
         self._bitModel.bitChanged.connect(self.onBitChanged)
 
     def updateDisplay(self):
-        self.setTitle(f'Reference count latch (h:{self._latch.hex} b:{self._latch.bin})')
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
         self._bitModel.update(self._latch.bin)
 
         self.bitmapChanged.emit()
@@ -231,6 +232,7 @@ class Adf4113RefcountLatchWidget(QGroupBox):
         self.latch.toggle_nth_bit(row * 8 + 7 - col)
 
         self.updateDisplay()
+
     @property
     def latch(self):
         return self._latch

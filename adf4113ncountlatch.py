@@ -106,6 +106,7 @@ class Adf4113NcountLatch(Adf4113RegisterBase):
 class Adf4113NcountLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
+    title = 'AB count latch'
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -149,7 +150,7 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self.setLayout(self._containerLayout)
 
         self._comboCpGain.setModel(MapModel(self, self._latch.cp_gain_mode_labels, sort=False))
-        self.setTitle(f'AB count latch (h:{self._latch.hex} b:{self._latch.bin})')
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
 
         self._tableBits.setModel(self._bitModel)
 
@@ -168,7 +169,7 @@ class Adf4113NcountLatchWidget(QGroupBox):
         self._bitModel.bitChanged.connect(self.onBitChanged)
 
     def updateDisplay(self):
-        self.setTitle(f'AB count latch (h:{self._latch.hex} b:{self._latch.bin})')
+        self.setTitle(f'{self.title} (h:{self._latch.hex} b:{self._latch.bin})')
 
         self._bitModel.update(self._latch.bin)
 
