@@ -37,7 +37,6 @@ class MainWindow(QMainWindow):
         self._ui.gridLatch.addWidget(self._ui.funcLatchWidget, 0, 1, 2, 1)
 
         self._ui.initLatchWidget = Adf4113InitLatchWidget(parent=self)
-        self._ui.initLatchWidget.setTitle('Init latch')
         self._ui.gridLatch.addWidget(self._ui.initLatchWidget, 0, 0, 2, 1)
 
         # create models
