@@ -396,10 +396,10 @@ class Adf4113FuncLatchWidget(QGroupBox):
         self._tableBits = QTableView()
         self._bitModel = BitModel(rowSize=8,
                                   bits=self._latch.bin,
-                                  labels=['X', 'DLY', 'SYNC', 'LDP', 'T2', 'T1', 'ABP2', 'ABP1',
-                                          'R14', 'R13', 'R12', 'R11', 'R10', 'R9', 'R8', 'R7',
-                                          'R6', 'R5', 'R4', 'R3', 'R2', 'R1', 'C2', 'C1'],
-                                  disabled=[True, False, False, False, True, True, False, False,
+                                  labels=['P2', 'P1', 'PD2', 'CPI6', 'CPI5', 'CPI4', 'CPI3', 'CPI2',
+                                          'CPI1', 'TC4', 'TC3', 'TC2', 'TC1', 'F5', 'F4', 'F3',
+                                          'F2', 'M3', 'M2', 'M1', 'PD1', 'F1', 'C2', 'C1'],
+                                  disabled=[False, False, False, False, False, False, False, False,
                                             False, False, False, False, False, False, False, False,
                                             False, False, False, False, False, False, True, True],
                                   parent=self)
