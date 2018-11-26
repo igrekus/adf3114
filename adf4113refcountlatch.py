@@ -143,7 +143,7 @@ class Adf4113RefcountLatch(Adf4113RegisterBase):
 class Adf4113RefcountLatchWidget(QGroupBox):
 
     bitmapChanged = pyqtSignal()
-    title = 'Reference count latch'
+    title = 'Ref count latch'
 
     def __init__(self, parent=None):
         super().__init__(parent)
