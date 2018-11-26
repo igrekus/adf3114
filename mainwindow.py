@@ -58,22 +58,35 @@ class MainWindow(QMainWindow):
         # self.size()
 
     def setupUiSignals(self):
-        self._ui.ncounterLatchWidget.bitmapChanged.connect(self._buildCommand)
-        self._ui.rcounterLatchWidget.bitmapChanged.connect(self._buildCommand)
-        self._ui.funcLatchWidget.bitmapChanged.connect(self._buildCommand)
-        self._ui.initLatchWidget.bitmapChanged.connect(self._buildCommand)
+        self._ui.ncounterLatchWidget.bitmapChanged.connect(self._buildDebug)
+        self._ui.rcounterLatchWidget.bitmapChanged.connect(self._buildDebug)
+        self._ui.funcLatchWidget.bitmapChanged.connect(self._buildDebug)
+        self._ui.initLatchWidget.bitmapChanged.connect(self._buildDebug)
 
-        self._ui.ncounterLatchWidget.toggled.connect(self._buildCommand)
-        self._ui.rcounterLatchWidget.toggled.connect(self._buildCommand)
-        self._ui.funcLatchWidget.toggled.connect(self._buildCommand)
-        self._ui.initLatchWidget.toggled.connect(self._buildCommand)
+        self._ui.ncounterLatchWidget.toggled.connect(self._buildDebug)
+        self._ui.rcounterLatchWidget.toggled.connect(self._buildDebug)
+        self._ui.funcLatchWidget.toggled.connect(self._buildDebug)
+        self._ui.initLatchWidget.toggled.connect(self._buildDebug)
+
+        self._ui.ncounterLatchWidget.bitmapChanged.connect(self._buildRun)
+        self._ui.rcounterLatchWidget.bitmapChanged.connect(self._buildRun)
+        self._ui.funcLatchWidget.bitmapChanged.connect(self._buildRun)
+
+        self._ui.ncounterLatchWidget.toggled.connect(self._buildRun)
+        self._ui.rcounterLatchWidget.toggled.connect(self._buildRun)
+        self._ui.funcLatchWidget.toggled.connect(self._buildRun)
 
     def setupModels(self):
         self._ui.comboFunc.setModel(self._funcModel)
 
+    def initUi(self):
+        self._ui.initLatchWidget.setChecked(False)
+        self._buildRun()
+
     def initDialog(self):
         self.setupModels()
         self.setupUiSignals()
+        self.initUi()
 
         self._modeDisconnected()
 
@@ -81,11 +94,13 @@ class MainWindow(QMainWindow):
         self._ui.btnConnect.setVisible(True)
         self._ui.btnDisconnect.setVisible(False)
         self._ui.btnWrite.setEnabled(False)
+        self._ui.btnRun.setEnabled(False)
 
     def _modeConnected(self):
         self._ui.btnConnect.setVisible(False)
         self._ui.btnDisconnect.setVisible(True)
         self._ui.btnWrite.setEnabled(True)
+        self._ui.btnRun.setEnabled(True)
 
     @pyqtSlot()
     def on_btnConnect_clicked(self):
@@ -107,6 +122,11 @@ class MainWindow(QMainWindow):
         if self._domain.connected:
             self._domain.send(self._ui.editCommand.text())
 
+    @pyqtSlot()
+    def on_btnRun_clicked(self):
+        if self._domain.connected:
+            self._domain.send(self._ui.editRun.text())
+
     @pyqtSlot(int)
     def on_comboFunc_currentIndexChanged(self, index: int):
         command_id = self._ui.comboFunc.currentData(MapModel.RoleNodeId)
@@ -116,7 +136,7 @@ class MainWindow(QMainWindow):
         self._ui.editFuncDesc.setText(self._ui.comboFunc.currentData(Qt.ToolTipRole))
 
     @pyqtSlot()
-    def _buildCommand(self):
+    def _buildDebug(self):
         def get_hex(widget):
             if not widget.isChecked():
                 return ''
@@ -129,5 +149,24 @@ class MainWindow(QMainWindow):
               f'{get_hex(self._ui.ncounterLatchWidget)}>'
 
         self._ui.editCommand.setText(cmd)
+
+    @pyqtSlot()
+    def _buildRun(self):
+
+        def enable_reset(widget):
+            widget.latch.counter_reset = 1
+            return f'{widget.latch.hex}'
+
+        def disable_reset(widget):
+            widget.latch.counter_reset = 0
+            return f'{widget.latch.hex}'
+
+        cmd = f'<f' \
+              f'.{enable_reset(self._ui.funcLatchWidget)}' \
+              f'.{self._ui.rcounterLatchWidget.latch.hex}' \
+              f'.{self._ui.ncounterLatchWidget.latch.hex}' \
+              f'.{disable_reset(self._ui.funcLatchWidget)}>'
+
+        self._ui.editRun.setText(cmd)
 
 
