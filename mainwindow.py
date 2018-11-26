@@ -7,6 +7,7 @@ from adf4113refcountlatch import Adf4113RefcountLatchWidget
 from adf4113funclatch import Adf4113FuncLatchWidget
 from adf4113initlatch import Adf4113InitLatchWidget
 from domain import Domain
+from mytools.mapmodel import MapModel
 
 
 class MainWindow(QMainWindow):
@@ -14,6 +15,13 @@ class MainWindow(QMainWindow):
     instrumentsFound = pyqtSignal()
     sampleFound = pyqtSignal()
     measurementFinished = pyqtSignal(int)
+
+    # TODO extract class
+    # TODO load command presets from a config file
+    command_presets = {
+        0: '<n>',
+        1: '<f.000006.000000.000001.000002>'   # 1. func: F1=1, C2=1; 2. R count: all zero; 3. AB count: C1=1; 4. func: C2=1;
+    }
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -40,6 +48,11 @@ class MainWindow(QMainWindow):
         self._ui.gridLatch.addWidget(self._ui.initLatchWidget, 0, 0, 2, 1)
 
         # create models
+        self._funcModel = MapModel(self, {
+            0: ('Test connection', 'Протестировать подключение к программатору'),
+            1: ('Counter reset method', 'Сбросить R и AB счетчики')
+        }, sort=False)
+
         self.initDialog()
 
         # self.size()
@@ -56,7 +69,7 @@ class MainWindow(QMainWindow):
         self._ui.initLatchWidget.toggled.connect(self._buildCommand)
 
     def setupModels(self):
-        pass
+        self._ui.comboFunc.setModel(self._funcModel)
 
     def initDialog(self):
         self.setupModels()
@@ -93,6 +106,14 @@ class MainWindow(QMainWindow):
     def on_btnWrite_clicked(self):
         if self._domain.connected:
             self._domain.send(self._ui.editCommand.text())
+
+    @pyqtSlot(int)
+    def on_comboFunc_currentIndexChanged(self, index: int):
+        command_id = self._ui.comboFunc.currentData(MapModel.RoleNodeId)
+        command_seq = self.command_presets[command_id]
+        print(f'init command: id={command_id}, hex={command_seq}')
+        self._ui.editCommand.setText(command_seq)
+        self._ui.editFuncDesc.setText(self._ui.comboFunc.currentData(Qt.ToolTipRole))
 
     @pyqtSlot()
     def _buildCommand(self):
