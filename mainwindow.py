@@ -69,30 +69,10 @@ class MainWindow(QMainWindow):
         self._ui.btnDisconnect.setVisible(False)
         self._ui.btnWrite.setEnabled(False)
 
-        # self._ui.ncounterLatchWidget.setEnabled(False)
-        # self._ui.rcounterLatchWidget.setEnabled(False)
-        # self._ui.funcLatchWidget.setEnabled(False)
-        # self._ui.initLatchWidget.setEnabled(False)
-
-        # self._ui.editBin.setEnabled(False)
-        # self._ui.editHex.setEnabled(False)
-        # self._ui.editCommand.setEnabled(False)
-        # self.setBitGroupEnabled(False)
-
     def _modeConnected(self):
         self._ui.btnConnect.setVisible(False)
         self._ui.btnDisconnect.setVisible(True)
         self._ui.btnWrite.setEnabled(True)
-
-        # self._ui.ncounterLatchWidget.setEnabled(True)
-        # self._ui.rcounterLatchWidget.setEnabled(True)
-        # self._ui.funcLatchWidget.setEnabled(True)
-        # self._ui.initLatchWidget.setEnabled(True)
-
-        # self._ui.editBin.setEnabled(True)
-        # self._ui.editHex.setEnabled(True)
-        # self._ui.editCommand.setEnabled(True)
-        # self.setBitGroupEnabled(True)
 
     @pyqtSlot()
     def on_btnConnect_clicked(self):
@@ -111,11 +91,8 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_btnWrite_clicked(self):
-        try:
-            if self._domain.connected:
-                self._domain.send(self._ui.editCommand.text())
-        except Exception as ex:
-            print(ex)
+        if self._domain.connected:
+            self._domain.send(self._ui.editCommand.text())
 
     @pyqtSlot()
     def _buildCommand(self):

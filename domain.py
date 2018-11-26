@@ -61,10 +61,12 @@ class Domain(QObject):
         self._progr.disconnect()
 
     def send(self, command):
+        res = ''
         try:
             res = self._progr.query(command)
         except Exception as ex:
             print(ex)
+        return res
 
     @property
     def connected(self):
