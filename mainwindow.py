@@ -111,11 +111,8 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_btnWrite_clicked(self):
-        try:
-            if self._domain.connected:
-                self._domain.send(self._ui.editCommand.text())
-        except Exception as ex:
-            print(ex)
+        if self._domain.connected:
+            self._domain.send(self._ui.editCommand.text())
 
     @pyqtSlot()
     def _buildCommand(self):
