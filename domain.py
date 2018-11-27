@@ -7,7 +7,7 @@ from arduino.arduinospi import ArduinoSpi
 from arduino.arduinospimock import ArduinoSpiMock
 
 
-mock_enabled = True
+mock_enabled = False
 
 
 class Domain(QObject):
