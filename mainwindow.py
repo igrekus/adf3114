@@ -1,3 +1,6 @@
+# -*- coding: UTF-8 -*-
+import os
+
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QButtonGroup
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
@@ -10,18 +13,14 @@ from domain import Domain
 from mytools.mapmodel import MapModel
 
 
+preset_file = 'presets.txt'
+
+
 class MainWindow(QMainWindow):
 
     instrumentsFound = pyqtSignal()
     sampleFound = pyqtSignal()
     measurementFinished = pyqtSignal(int)
-
-    # TODO extract class
-    # TODO load command presets from a config file
-    command_presets = {
-        0: '<n>',
-        1: '<f.000006.000000.000001.000002>'   # 1. func: F1=1, C2=1; 2. R count: all zero; 3. AB count: C1=1; 4. func: C2=1;
-    }
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -47,6 +46,10 @@ class MainWindow(QMainWindow):
         self._ui.initLatchWidget = Adf4113InitLatchWidget(parent=self)
         self._ui.gridLatch.addWidget(self._ui.initLatchWidget, 0, 0, 2, 1)
 
+        # TODO extract class
+        # TODO load command presets from a config file
+        self._commandPresets = dict()
+
         # create models
         self._funcModel = MapModel(self, {
             0: ('Test connection', 'Протестировать подключение к программатору'),
@@ -56,6 +59,20 @@ class MainWindow(QMainWindow):
         self.initDialog()
 
         # self.size()
+
+    def loadPresets(self):
+        if not os.path.isfile(f'./{preset_file}'):
+            return
+
+        labels = dict()
+        with open(f'./{preset_file}', 'rt', encoding='utf-8') as f:
+            for index, line in enumerate(f.readlines()):
+                if '#' not in line:
+                    command, label, tip = line.split('|')
+                    self._commandPresets[index] = command
+                    labels[index] = (label, tip)
+
+        self._funcModel.initModel(labels)
 
     def setupUiSignals(self):
         self._ui.ncounterLatchWidget.bitmapChanged.connect(self._buildDebug)
@@ -84,6 +101,10 @@ class MainWindow(QMainWindow):
         self._buildRun()
 
     def initDialog(self):
+        self.loadPresets()
+
+
+
         self.setupModels()
         self.setupUiSignals()
         self.initUi()
@@ -130,7 +151,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot(int)
     def on_comboFunc_currentIndexChanged(self, index: int):
         command_id = self._ui.comboFunc.currentData(MapModel.RoleNodeId)
-        command_seq = self.command_presets[command_id]
+        command_seq = self._commandPresets[command_id]
         print(f'init command: id={command_id}, hex={command_seq}')
         self._ui.editCommand.setText(command_seq)
         self._ui.editFuncDesc.setText(self._ui.comboFunc.currentData(Qt.ToolTipRole))
